@@ -1,0 +1,811 @@
+.netpeak-aio__content {
+    margin-top: 1rem;
+}
+
+/* ---------- Two-column layout (sidebar + panel) ---------- */
+
+.netpeak-aio__layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+@media (max-width: 782px) {
+    .netpeak-aio__layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------- Sidebar ---------- */
+
+.netpeak-aio__sidebar {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 0.75rem 0;
+    position: sticky;
+    top: 2rem;
+}
+
+.netpeak-aio__nav-group + .netpeak-aio__nav-group {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #f0f0f1;
+}
+
+.netpeak-aio__nav-group-title {
+    margin: 0 0 0.4rem;
+    padding: 0 1rem;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8c8f94;
+}
+
+.netpeak-aio__nav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.netpeak-aio__nav-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.55rem 1rem;
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: #2c3338;
+    transition: background 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+}
+
+.netpeak-aio__nav-item:hover {
+    background: #f6f7f7;
+    color: #1d2327;
+}
+
+.netpeak-aio__nav-item--active {
+    background: #f0f6fc;
+    border-left-color: #2271b1;
+    color: #2271b1;
+    font-weight: 600;
+}
+
+.netpeak-aio__nav-label {
+    display: inline-block;
+}
+
+/* ---------- Panel ---------- */
+
+.netpeak-aio__panel {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 1.5rem;
+    min-height: 400px;
+}
+
+.netpeak-aio__section-title {
+    margin: 0 0 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid #f0f0f1;
+    font-size: 18px;
+    color: #1d2327;
+}
+
+.netpeak-aio__lede {
+    color: #50575e;
+    margin: 0 0 1rem;
+}
+
+/* ---------- Dashboard cards (kept from before) ---------- */
+
+.netpeak-aio__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.netpeak-aio__card {
+    background: #fff;
+    padding: 1.25rem;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+
+.netpeak-aio__card-label {
+    font-size: 12px;
+    color: #50575e;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 0.5rem;
+}
+
+.netpeak-aio__card-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #1d2327;
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* ---------- Form rows ---------- */
+
+.netpeak-aio__row {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.netpeak-aio__label {
+    min-width: 180px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.netpeak-aio__input {
+    flex: 1;
+    max-width: 420px;
+}
+
+.netpeak-aio__checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* ---------- Status pill ---------- */
+
+.netpeak-aio__status {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.netpeak-aio__status--connected {
+    background: #e7f7ee;
+    color: #0a7a2f;
+}
+
+.netpeak-aio__status--disconnected {
+    background: #f2f2f2;
+    color: #555;
+}
+
+/* ---------- Feedback ---------- */
+
+.netpeak-aio__toast {
+    display: inline-block;
+    margin-left: 1rem;
+    padding: 4px 10px;
+    background: #e7f7ee;
+    color: #0a7a2f;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.netpeak-aio__error {
+    color: #b30000;
+    background: #ffecec;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.netpeak-aio__loading {
+    color: #50575e;
+    font-style: italic;
+    padding: 0.75rem 0;
+}
+
+.netpeak-aio__actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f1;
+}
+
+/* ---------- Dashboard table ---------- */
+
+.netpeak-aio__table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.netpeak-aio__table th,
+.netpeak-aio__table td {
+    padding: 0.6rem 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f1;
+    font-size: 13px;
+}
+
+.netpeak-aio__table th {
+    background: #f6f7f7;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.netpeak-aio__table tr:last-child td {
+    border-bottom: none;
+}
+
+.netpeak-aio__table td.num,
+.netpeak-aio__table th.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- OAuth docs (stepper) ---------- */
+
+.netpeak-aio__docs {
+    margin-bottom: 1.5rem;
+}
+
+.netpeak-aio__step {
+    background: #fbfbfc;
+    border: 1px solid #f0f0f1;
+    border-radius: 4px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.netpeak-aio__step-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 0.4rem;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.netpeak-aio__step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: #2271b1;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.netpeak-aio__step p {
+    margin: 0.5rem 0;
+    color: #50575e;
+    line-height: 1.5;
+}
+
+.netpeak-aio__hint {
+    background: #fcf9e8;
+    border-left: 3px solid #dba617;
+    padding: 0.5rem 0.75rem;
+    font-size: 13px;
+    border-radius: 2px;
+    margin: 1rem 0;
+}
+
+.netpeak-aio__callout {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    background: #f0f6fc;
+    border: 1px solid #c5d9ed;
+    border-radius: 4px;
+    margin: 0.5rem 0;
+}
+
+.netpeak-aio__callout-code {
+    flex: 1;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 13px;
+    word-break: break-all;
+    color: #1d2327;
+    background: transparent;
+    padding: 0;
+}
+
+.netpeak-aio__screenshot {
+    display: block;
+    max-width: 100%;
+    margin-top: 0.5rem;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+}
+
+/* =============================================================
+   Connect page
+   ============================================================= */
+
+.netpeak-aio__connect {
+    max-width: 860px;
+}
+
+/* ---------- Hero block ---------- */
+
+.netpeak-aio__hero {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: border-color 0.15s ease;
+}
+
+.netpeak-aio__hero--connected {
+    border-color: #b6e3c6;
+    background: linear-gradient(180deg, #f6fdf8 0%, #ffffff 100%);
+}
+
+.netpeak-aio__hero--disconnected {
+    border-color: #dcdcde;
+}
+
+.netpeak-aio__hero-icon {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid #f0f0f1;
+    border-radius: 50%;
+}
+
+.netpeak-aio__hero-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.netpeak-aio__hero-status {
+    margin-bottom: 0.4rem;
+}
+
+.netpeak-aio__hero-title {
+    margin: 0 0 0.5rem;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1d2327;
+    line-height: 1.3;
+}
+
+.netpeak-aio__hero-lede {
+    margin: 0 0 1rem;
+    font-size: 14px;
+    color: #50575e;
+    line-height: 1.5;
+    max-width: 560px;
+}
+
+.netpeak-aio__hero-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* ---------- Checklist ---------- */
+
+.netpeak-aio__checklist {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.netpeak-aio__checklist-title {
+    margin: 0 0 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid #f0f0f1;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.netpeak-aio__checklist-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.netpeak-aio__checklist-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid #f6f7f7;
+}
+
+.netpeak-aio__checklist-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.netpeak-aio__checklist-item:first-child {
+    padding-top: 0;
+}
+
+.netpeak-aio__checklist-num {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background: #2271b1;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.netpeak-aio__checklist-label {
+    margin: 0 0 0.25rem;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.netpeak-aio__checklist-desc {
+    margin: 0;
+    font-size: 13px;
+    color: #50575e;
+    line-height: 1.5;
+}
+
+.netpeak-aio__checklist-desc + .netpeak-aio__callout {
+    margin-top: 0.5rem;
+}
+
+/* ---------- Privacy note ---------- */
+
+.netpeak-aio__privacy {
+    background: #fbfbfc;
+    border: 1px solid #f0f0f1;
+    border-radius: 6px;
+    padding: 1.25rem 1.75rem;
+}
+
+.netpeak-aio__privacy-title {
+    margin: 0 0 0.75rem;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.netpeak-aio__privacy-list {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 13px;
+    color: #50575e;
+    line-height: 1.6;
+}
+
+.netpeak-aio__privacy-list li + li {
+    margin-top: 0.3rem;
+}
+
+/* =============================================================
+   Dashboard
+   ============================================================= */
+
+.netpeak-aio__dashboard {
+    max-width: 1200px;
+}
+
+/* ---------- Toolbar ---------- */
+
+.netpeak-aio__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.netpeak-aio__range {
+    display: inline-flex;
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.netpeak-aio__range-btn {
+    background: transparent;
+    border: none;
+    border-right: 1px solid #dcdcde;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    font-size: 13px;
+    color: #50575e;
+    transition: background 0.1s ease, color 0.1s ease;
+}
+
+.netpeak-aio__range-btn:last-child {
+    border-right: none;
+}
+
+.netpeak-aio__range-btn:hover {
+    background: #f6f7f7;
+}
+
+.netpeak-aio__range-btn--active {
+    background: #2271b1;
+    color: #fff;
+}
+
+.netpeak-aio__loading-pill {
+    display: inline-block;
+    padding: 2px 10px;
+    background: #eef3ff;
+    color: #2271b1;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* ---------- Row groups ---------- */
+
+.netpeak-aio__row-group {
+    margin-bottom: 1.5rem;
+}
+
+.netpeak-aio__row-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.75rem;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.netpeak-aio__row-accent {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.netpeak-aio__row-accent--gsc { background: #2271b1; }
+.netpeak-aio__row-accent--ga4 { background: #ea8038; }
+
+/* ---------- Cards with delta ---------- */
+
+.netpeak-aio__card-delta {
+    margin: 0.4rem 0 0;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.netpeak-aio__card-delta--up   { color: #0a7a2f; }
+.netpeak-aio__card-delta--down { color: #b30000; }
+.netpeak-aio__card-delta--flat { color: #8c8f94; }
+
+.netpeak-aio__card-delta--up::before   { content: '▲ '; }
+.netpeak-aio__card-delta--down::before { content: '▼ '; }
+.netpeak-aio__card-delta--flat::before { content: '▬ '; }
+
+/* ---------- Chart block ---------- */
+
+.netpeak-aio__chart-block {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.netpeak-aio__chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.netpeak-aio__chart-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.netpeak-aio__metric-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.netpeak-aio__metric-btn {
+    background: transparent;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 0.3rem 0.7rem;
+    cursor: pointer;
+    font-size: 12px;
+    color: #50575e;
+    transition: background 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+}
+
+.netpeak-aio__metric-btn:hover {
+    background: #f6f7f7;
+    color: #1d2327;
+}
+
+.netpeak-aio__metric-btn--active {
+    background: #2271b1;
+    color: #fff;
+    border-color: #2271b1;
+}
+
+.netpeak-aio__chart-canvas {
+    position: relative;
+    height: 280px;
+}
+
+/* ---------- Top queries block ---------- */
+
+.netpeak-aio__table-block {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+}
+
+.netpeak-aio__table-title {
+    margin: 0 0 0.75rem;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+/* === Top tabs over the GSC table ======================================== */
+
+.netpeak-aio__top-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid #dcdcde;
+    margin-bottom: 16px;
+}
+
+.netpeak-aio__top-tab {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #50575e;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.netpeak-aio__top-tab:hover {
+    color: #1e1e1e;
+}
+
+.netpeak-aio__top-tab--active {
+    color: #2271b1;
+    border-bottom-color: #2271b1;
+}
+
+.netpeak-aio__empty {
+    padding: 24px;
+    color: #646970;
+    text-align: center;
+    font-style: italic;
+}
+
+/* === Spinner & loading overlays ========================================== */
+
+/* Base SVG spinner — rotates + animates stroke-dash */
+.netpeak-aio__spinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    animation: netpeak-aio-spin 1s linear infinite;
+}
+
+.netpeak-aio__spinner circle {
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: 0;
+    animation: netpeak-aio-spin-dash 1.5s ease-in-out infinite;
+}
+
+@keyframes netpeak-aio-spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes netpeak-aio-spin-dash {
+    0%   { stroke-dasharray: 1, 150;   stroke-dashoffset: 0;    }
+    50%  { stroke-dasharray: 90, 150;  stroke-dashoffset: -35;  }
+    100% { stroke-dasharray: 90, 150;  stroke-dashoffset: -124; }
+}
+
+/* Blocks that can be overlaid during loading */
+.netpeak-aio__row-group,
+.netpeak-aio__chart-block,
+.netpeak-aio__table-block {
+    position: relative;
+    transition: opacity 0.2s ease;
+}
+
+.netpeak-aio__row-group.is-loading .netpeak-aio__grid,
+.netpeak-aio__chart-block.is-loading .netpeak-aio__chart-canvas,
+.netpeak-aio__table-block.is-loading .netpeak-aio__table,
+.netpeak-aio__table-block.is-loading .netpeak-aio__empty {
+    opacity: 0.35;
+    pointer-events: none;
+    filter: blur(0.5px);
+    transition: opacity 0.2s ease, filter 0.2s ease;
+}
+
+/* Centered spinner over the dimmed block */
+.netpeak-aio__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    pointer-events: none;
+    color: #2271b1;
+}
+
+.netpeak-aio__overlay .netpeak-aio__spinner {
+    width: 36px;
+    height: 36px;
+}
+
+/* Loading pill in the toolbar (smaller, inline) */
+.netpeak-aio__loading-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: #f0f6fc;
+    color: #2271b1;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.netpeak-aio__loading-pill .netpeak-aio__spinner {
+    width: 14px;
+    height: 14px;
+}
+
+/* x-cloak: hide elements flagged with this attribute until Alpine initialises.
+   Prevents spinner flash on initial page render. */
+[x-cloak] { display: none !important; }

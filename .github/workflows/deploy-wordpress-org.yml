@@ -1,0 +1,54 @@
+name: WordPress.org deploy
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint plugin
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v3
+        with:
+          php-version: 8.2
+          extensions: mbstring, curl, json, xml
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run code style checks
+        run: composer lint
+
+  deploy:
+    name: Deploy to WordPress.org
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v3
+        with:
+          php-version: 8.2
+          extensions: mbstring, curl, json, xml
+
+      - name: Install production dependencies
+        run: composer install --no-dev --prefer-dist --no-progress --classmap-authoritative
+
+      - name: Deploy to WordPress.org plugin repository
+        uses: 10up/action-wordpress-plugin-deploy@stable
+        env:
+          SVN_USERNAME: ${{ secrets.WORDPRESS_ORG_SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.WORDPRESS_ORG_SVN_PASSWORD }}
+          SLUG: netpeak-aio
+          VERSION: 0.1.0

@@ -1,0 +1,27 @@
+{
+    "name": "netpeak/netpeak-aio",
+    "description": "Connect Google Analytics 4, Tag Manager, Search Console, and Meta Pixel without touching your theme.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.9",
+        "wp-coding-standards/wpcs": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Netpeak\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        },
+        "sort-packages": true
+    },
+    "scripts": {
+        "lint": "php vendor/bin/phpcs --standard=WordPress src/ views/ netpeak-aio.php uninstall.php"
+    }
+}

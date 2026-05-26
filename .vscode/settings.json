@@ -1,0 +1,26 @@
+{
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/vendor/**": true,
+    "**/storage/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/.next/**": true,
+    "**/.nuxt/**": true
+  },
+
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/vendor": true,
+    "**/storage": true,
+    "**/dist": true,
+  },
+
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/vendor": true
+  },
+  "editor.largeFileOptimizations": true
+}
