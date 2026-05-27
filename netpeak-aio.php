@@ -107,13 +107,6 @@ register_activation_hook(__FILE__, static function () use ($google_aio_requireme
     \Netpeak\Plugin::on_activate();
 });
 
-add_action('init', static function (): void {
-    load_plugin_textdomain(
-        'netpeak-aio',
-        false,
-        dirname(plugin_basename(__FILE__)) . '/languages'
-    );
-});
 
 register_deactivation_hook(__FILE__, [\Netpeak\Plugin::class, 'on_deactivate']);
 

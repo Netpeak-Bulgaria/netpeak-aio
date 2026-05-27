@@ -57,9 +57,12 @@ final class SearchConsole extends AbstractIntegration
             return;
         }
 
-        $request_uri = (string) ($_SERVER['REQUEST_URI'] ?? '');
-        $path        = (string) parse_url($request_uri, PHP_URL_PATH);
-        $slug        = basename($path);
+        $request_uri = isset($_SERVER['REQUEST_URI'])
+            ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI']))
+            : '';
+
+        $path = (string) wp_parse_url($request_uri, PHP_URL_PATH);
+        $slug = basename($path);
 
         if ($slug !== $filename) {
             return;
@@ -69,7 +72,7 @@ final class SearchConsole extends AbstractIntegration
         header('Content-Type: text/html; charset=utf-8');
         header('X-Robots-Tag: noindex, nofollow');
 
-        echo "google-site-verification: {$filename}";
+        echo 'google-site-verification: ' . esc_html($filename);
         exit;
     }
 }

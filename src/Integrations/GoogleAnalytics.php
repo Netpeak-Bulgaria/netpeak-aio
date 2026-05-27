@@ -112,7 +112,9 @@ final class GoogleAnalytics extends AbstractIntegration
 
         ob_start();
         ?>
+
         <!-- Google Analytics 4 (Analytics Netpeak AIO) -->
+        <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Tracking pixel must load inline before any user interaction. ?>
         <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr($id); ?>"></script>
         <script>
             window.dataLayer = window.dataLayer || [];

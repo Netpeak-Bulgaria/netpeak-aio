@@ -454,7 +454,10 @@ final class MetaPixel extends AbstractIntegration
             }
         }
 
-        $fbp = (string) ($_COOKIE['_fbp'] ?? '');
+        $fbp = isset($_COOKIE['_fbp'])
+            ? sanitize_text_field(wp_unslash($_COOKIE['_fbp']))
+            : '';
+
         if ($fbp !== '') {
             return 'fbp_' . substr(preg_replace('/[^a-zA-Z0-9.]/', '', $fbp), 0, 40);
         }
@@ -481,10 +484,18 @@ final class MetaPixel extends AbstractIntegration
         }
 
         // Fallback: some themes re-route via query string.
-        if (isset($_GET['order']) && is_numeric($_GET['order'])) {
-            return (int) $_GET['order'];
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public WC thank-you page, no nonce by design.
+        if (!isset($_GET['order'])) {
+            return 0;
         }
 
-        return 0;
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Same.
+        $raw_order = sanitize_text_field(wp_unslash($_GET['order']));
+
+        if (!is_numeric($raw_order)) {
+            return 0;
+        }
+
+        return (int) $raw_order;
     }
 }

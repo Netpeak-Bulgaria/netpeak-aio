@@ -10,7 +10,9 @@ if (!defined('ABSPATH')) {
 }
 
 $connected      = !empty($data['connected']);
-$just_connected = isset($_GET['connected']) && $_GET['connected'] === '1';
+
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only flag set by our own OAuth callback redirect, no state change.
+$just_connected = isset($_GET['connected']) && sanitize_text_field(wp_unslash($_GET['connected'])) === '1';
 $callback_url   = rest_url('netpeak-aio/v1/oauth/callback');
 $settings_url   = admin_url('admin.php?page=netpeak-aio-settings');
 ?>
@@ -86,11 +88,20 @@ $settings_url   = admin_url('admin.php?page=netpeak-aio-settings');
                     <p class="netpeak-aio__checklist-label"><?php esc_html_e('OAuth credentials filled in', 'netpeak-aio'); ?></p>
                     <p class="netpeak-aio__checklist-desc">
 
-                        <?php printf(
-                              /* translators: %s: OAuth settings URL */
-                            __('Open <a href="%s">Settings → OAuth</a> and paste your Client ID and Client Secret from Google Cloud Console.', 'netpeak-aio'),
-                            esc_url($settings_url)
-                        ); ?>
+                        <?php
+                        echo wp_kses(
+                            sprintf(
+                                /* translators: %s: OAuth settings URL */
+                                __('Open <a href="%s">Settings → OAuth</a> and paste your Client ID and Client Secret from Google Cloud Console.', 'netpeak-aio'),
+                                esc_url($settings_url)
+                            ),
+                            [
+                                'a' => [
+                                    'href' => [],
+                                ],
+                            ]
+                        );
+                        ?>
                     </p>
                 </div>
             </li>
@@ -110,9 +121,26 @@ $settings_url   = admin_url('admin.php?page=netpeak-aio-settings');
         <h3 class="netpeak-aio__privacy-title"><?php esc_html_e('What the plugin does with this connection', 'netpeak-aio'); ?></h3>
         <ul class="netpeak-aio__privacy-list">
             <li><?php esc_html_e('Reads Search Console metrics (clicks, impressions, CTR, position) for the selected property.', 'netpeak-aio'); ?></li>
-            <li><?php _e('Stores access and refresh tokens <strong>encrypted</strong> <a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode" target="_blank" rel="noopener">(AES-256-GCM)</a> in your database.', 'netpeak-aio'); ?></li>
+            <li>
+                <?php
+                printf(
+                    /* translators: 1: "encrypted" emphasised, 2: link to AES-256-GCM Wikipedia article */
+                    esc_html__('Stores access and refresh tokens %1$s %2$s in your database.', 'netpeak-aio'),
+                    '<strong>' . esc_html__('encrypted', 'netpeak-aio') . '</strong>',
+                    '<a href="https://en.wikipedia.org/wiki/Galois/Counter_Mode" target="_blank" rel="noopener">' . esc_html__('(AES-256-GCM)', 'netpeak-aio') . '</a>'
+                );
+                ?>
+            </li>
             <li><?php esc_html_e('Never transmits tokens or site data to any third-party server — everything goes directly to Google.', 'netpeak-aio'); ?></li>
-            <li><?php _e('Disconnecting here revokes tokens locally. To fully revoke access, also remove it from your <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google Account permissions</a>.', 'netpeak-aio'); ?></li>
+            <li>
+                <?php
+                printf(
+                    /* translators: %s: link to Google Account permissions page */
+                    esc_html__('Disconnecting here revokes tokens locally. To fully revoke access, also remove it from your %s.', 'netpeak-aio'),
+                    '<a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">' . esc_html__('Google Account permissions', 'netpeak-aio') . '</a>'
+                );
+                ?>
+            </li>
         </ul>
     </div>
 

@@ -50,6 +50,7 @@ $netpeak_aio_cleanup = static function (): void {
     ];
 
     foreach ($transient_prefixes as $prefix) {
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Wildcard DELETE on uninstall, no caching needed.
         $wpdb->query(
             $wpdb->prepare(
                 "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",

@@ -70,7 +70,7 @@ final class Logger
             $message,
             !empty($context) ? ' ' . wp_json_encode($context) : ''
         );
-
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging gated by WP_DEBUG constant.
         error_log($line);
     }
 }
