@@ -39,9 +39,12 @@ final class HeadInjector
     public function output(): void
     {
         foreach ($this->injectors as $injector) {
+            // Each integration is responsible for escaping its own output.
+            // The HTML here contains intentional <script>/<iframe> tags from
+            // Meta Pixel, GTM and similar — escaping would break functionality.
             $html = (string) apply_filters('google_aio_head_html', $injector->render_head(), $injector);
             if ($html !== '') {
-                echo $html . "\n";
+                echo $html . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             }
         }
     }

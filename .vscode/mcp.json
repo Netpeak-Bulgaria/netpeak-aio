@@ -1,0 +1,16 @@
+{
+	"servers": {
+		"wporg-mcp-server": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@automattic/mcp-wordpress-remote@latest"
+			],
+			"env": {
+				"WP_API_URL": "https://wordpress.org/wp-json/mcp/wporg",
+				"WP_API_USERNAME": "masiknetpeak",
+				"WP_API_PASSWORD": "EakIhfBVwiQpfX40WvXs3ab7"
+			}
+		}
+	}
+}

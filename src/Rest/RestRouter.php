@@ -46,6 +46,6 @@ final class RestRouter
         (new SearchConsoleController($this->container))->register();
         (new OAuthController($this->container))->register();
         (new AnalyticsController($this->container))->register();
-        //(new GtmProductController($this->container))->register();
+        (new GtmProductController($this->container))->register();
     }
 }

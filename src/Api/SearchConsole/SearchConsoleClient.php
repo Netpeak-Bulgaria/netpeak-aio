@@ -89,7 +89,7 @@ final class SearchConsoleClient
         $response = wp_remote_request($url, $args);
 
         if (is_wp_error($response)) {
-            throw new RuntimeException('GSC HTTP error: ' . $response->get_error_message());
+            throw new RuntimeException(esc_html('GSC HTTP error: ' . $response->get_error_message()));
         }
 
         $code = (int) wp_remote_retrieve_response_code($response);
@@ -99,7 +99,7 @@ final class SearchConsoleClient
             $message = is_array($data) && !empty($data['error']['message'])
                 ? (string) $data['error']['message']
                 : "HTTP {$code}";
-            throw new RuntimeException("GSC API error: {$message}");
+            throw new RuntimeException(esc_html("GSC API error: {$message}"));
         }
 
         return $data;

@@ -85,7 +85,9 @@ $settings_url   = admin_url('admin.php?page=netpeak-aio-settings');
                 <div>
                     <p class="netpeak-aio__checklist-label"><?php esc_html_e('OAuth credentials filled in', 'netpeak-aio'); ?></p>
                     <p class="netpeak-aio__checklist-desc">
+
                         <?php printf(
+                              /* translators: %s: OAuth settings URL */
                             __('Open <a href="%s">Settings → OAuth</a> and paste your Client ID and Client Secret from Google Cloud Console.', 'netpeak-aio'),
                             esc_url($settings_url)
                         ); ?>

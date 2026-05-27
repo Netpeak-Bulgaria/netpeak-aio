@@ -116,7 +116,7 @@ final class GoogleOAuthClient
         ]);
 
         if (is_wp_error($response)) {
-            throw new RuntimeException('OAuth HTTP error: ' . $response->get_error_message());
+            throw new RuntimeException(esc_html('OAuth HTTP error: ' . $response->get_error_message()));
         }
 
         $code = (int) wp_remote_retrieve_response_code($response);
@@ -126,7 +126,7 @@ final class GoogleOAuthClient
             $message = is_array($data) && !empty($data['error_description'])
                 ? (string) $data['error_description']
                 : "HTTP {$code}";
-            throw new RuntimeException("OAuth token error: {$message}");
+            throw new RuntimeException(esc_html("OAuth token error: {$message}"));
         }
 
         return $data;

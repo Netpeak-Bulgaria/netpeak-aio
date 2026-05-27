@@ -73,13 +73,13 @@ final class GoogleAnalyticsClient
 
         if ($body !== null) {
             $args['headers']['Content-Type'] = 'application/json';
-            $args['body']                    = wp_json_encode($body);
+            $args['body'] = wp_json_encode($body);
         }
 
         $response = wp_remote_request($url, $args);
 
         if (is_wp_error($response)) {
-            throw new RuntimeException('GA4 HTTP error: ' . $response->get_error_message());
+            throw new RuntimeException('GA4 HTTP error: ' . esc_html($response->get_error_message()));
         }
 
         $code = (int) wp_remote_retrieve_response_code($response);
@@ -89,7 +89,7 @@ final class GoogleAnalyticsClient
             $message = is_array($data) && !empty($data['error']['message'])
                 ? (string) $data['error']['message']
                 : "HTTP {$code}";
-            throw new RuntimeException("GA4 API error: {$message}");
+            throw new RuntimeException(esc_html("GA4 API error: {$message}"));
         }
 
         return $data;

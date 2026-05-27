@@ -50,6 +50,9 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
 
                 <section x-show="activeTab === 'ga4'">
                     <h2 class="netpeak-aio__section-title">Google Analytics 4</h2>
+                    <p class="netpeak-aio__lede">
+                        <?php esc_html_e('Loads gtag.js and emits GA4 Enhanced Ecommerce events directly. Requires WooCommerce for ecommerce events.', 'netpeak-aio'); ?>
+                    </p>
 
                     <div class="netpeak-aio__checkbox-row">
                         <input type="checkbox" id="ga4-enabled" x-model="settings.data.ga4.enabled">
@@ -78,10 +81,56 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                         <input type="checkbox" id="ga4-via-gtm" x-model="settings.data.ga4.route_via_gtm">
                         <label for="ga4-via-gtm"><?php esc_html_e('Route GA4 through Tag Manager (skip direct gtag.js output)', 'netpeak-aio'); ?></label>
                     </div>
+                    <p class="netpeak-aio__hint">
+                        <?php esc_html_e('Enable this when GA4 is already configured as a tag inside your GTM container. Prevents duplicate events.', 'netpeak-aio'); ?>
+                    </p>
+
+                    <div class="netpeak-aio__docs">
+                        <div class="netpeak-aio__step">
+                            <h4 class="netpeak-aio__step-title">
+                                <span class="netpeak-aio__step-num">1</span>
+                                <?php esc_html_e('What fires automatically (Enhanced Ecommerce)', 'netpeak-aio'); ?>
+                            </h4>
+                            <p><?php esc_html_e('When WooCommerce is active and GA4 is not routed through GTM, the plugin emits these gtag events:', 'netpeak-aio'); ?></p>
+                            <ul class="netpeak-aio__api-list">
+                                <li><code>page_view</code> — <?php esc_html_e('every page (built-in gtag config)', 'netpeak-aio'); ?></li>
+                                <li><code>view_item_list</code> — <?php esc_html_e('shop, category, tag archives', 'netpeak-aio'); ?></li>
+                                <li><code>view_item</code> — <?php esc_html_e('single product pages', 'netpeak-aio'); ?></li>
+                                <li><code>add_to_cart</code> — <?php esc_html_e('on add to cart (incl. AJAX)', 'netpeak-aio'); ?></li>
+                                <li><code>remove_from_cart</code> — <?php esc_html_e('on cart item removal', 'netpeak-aio'); ?></li>
+                                <li><code>view_cart</code> — <?php esc_html_e('cart page', 'netpeak-aio'); ?></li>
+                                <li><code>begin_checkout</code> — <?php esc_html_e('checkout page', 'netpeak-aio'); ?></li>
+                                <li><code>purchase</code> — <?php esc_html_e('thank-you page, deduplicated per order', 'netpeak-aio'); ?></li>
+                            </ul>
+                            <p class="netpeak-aio__hint">
+                                <?php esc_html_e('Each event carries currency, value and items[] with product id, name, price, quantity, category and brand (when available).', 'netpeak-aio'); ?>
+                            </p>
+                        </div>
+
+                        <div class="netpeak-aio__step">
+                            <h4 class="netpeak-aio__step-title">
+                                <span class="netpeak-aio__step-num">2</span>
+                                <?php esc_html_e('Verify in GA4', 'netpeak-aio'); ?>
+                            </h4>
+                            <p>
+                                <?php
+                                printf(
+                                    /* translators: %s: link to GA4 DebugView */
+                                    esc_html__('Open %s to see events arrive in real time. Make sure your browser is not blocking google-analytics.com.', 'netpeak-aio'),
+                                    '<a href="https://analytics.google.com/" target="_blank" rel="noopener">' . esc_html__('GA4 → Admin → DebugView', 'netpeak-aio') . '</a>'
+                                );
+                                ?>
+                            </p>
+                        </div>
+                    </div>
                 </section>
 
                 <section x-show="activeTab === 'gtm'">
                     <h2 class="netpeak-aio__section-title">Google Tag Manager</h2>
+                    <p class="netpeak-aio__lede">
+                        <?php esc_html_e('Loads GTM container and pushes GA4 Enhanced Ecommerce events to window.dataLayer. Requires WooCommerce for ecommerce events.', 'netpeak-aio'); ?>
+                    </p>
+
                     <div class="netpeak-aio__checkbox-row">
                         <input type="checkbox" id="gtm-enabled" x-model="settings.data.gtm.enabled">
                         <label for="gtm-enabled"><?php esc_html_e('Enable Google Tag Manager', 'netpeak-aio'); ?></label>
@@ -91,6 +140,63 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                         <input id="gtm-id" type="text" class="netpeak-aio__input regular-text"
                                x-model="settings.data.gtm.container_id"
                                placeholder="GTM-XXXXXXX">
+                    </div>
+
+                    <div class="netpeak-aio__docs">
+                        <div class="netpeak-aio__step">
+                            <h4 class="netpeak-aio__step-title">
+                                <span class="netpeak-aio__step-num">1</span>
+                                <?php esc_html_e('What gets pushed to dataLayer', 'netpeak-aio'); ?>
+                            </h4>
+                            <p><?php esc_html_e('When WooCommerce is active, the plugin pushes these GA4 Enhanced Ecommerce events to window.dataLayer:', 'netpeak-aio'); ?></p>
+                            <ul class="netpeak-aio__api-list">
+                                <li><code>view_item_list</code> — <?php esc_html_e('shop, category, tag archives', 'netpeak-aio'); ?></li>
+                                <li><code>view_item</code> — <?php esc_html_e('single product pages', 'netpeak-aio'); ?></li>
+                                <li><code>add_to_cart</code> — <?php esc_html_e('on add to cart (incl. AJAX)', 'netpeak-aio'); ?></li>
+                                <li><code>remove_from_cart</code> — <?php esc_html_e('on cart item removal', 'netpeak-aio'); ?></li>
+                                <li><code>view_cart</code> — <?php esc_html_e('cart page', 'netpeak-aio'); ?></li>
+                                <li><code>begin_checkout</code> — <?php esc_html_e('checkout page', 'netpeak-aio'); ?></li>
+                                <li><code>purchase</code> — <?php esc_html_e('thank-you page, deduplicated per order', 'netpeak-aio'); ?></li>
+                            </ul>
+                            <p class="netpeak-aio__hint">
+                                <?php esc_html_e('Each push clears window.dataLayer.ecommerce before pushing new event data (GA4 best practice).', 'netpeak-aio'); ?>
+                            </p>
+                        </div>
+
+                        <div class="netpeak-aio__step">
+                            <h4 class="netpeak-aio__step-title">
+                                <span class="netpeak-aio__step-num">2</span>
+                                <?php esc_html_e('Configure tags in GTM', 'netpeak-aio'); ?>
+                            </h4>
+                            <p>
+                                <?php esc_html_e('The plugin only emits dataLayer events — GTM still needs to be configured to forward them to GA4, Meta, Google Ads, etc. Create one trigger per event name and route to your destination tags.', 'netpeak-aio'); ?>
+                            </p>
+                            <p class="netpeak-aio__hint">
+                                <?php
+                                printf(
+                                    /* translators: %s: link to GTM Preview Mode docs */
+                                    esc_html__('Use %s to verify events fire correctly during setup.', 'netpeak-aio'),
+                                    '<a href="https://support.google.com/tagmanager/answer/6107056" target="_blank" rel="noopener">' . esc_html__('GTM Preview Mode', 'netpeak-aio') . '</a>'
+                                );
+                                ?>
+                            </p>
+                        </div>
+
+                        <div class="netpeak-aio__step">
+                            <h4 class="netpeak-aio__step-title">
+                                <span class="netpeak-aio__step-num">3</span>
+                                <?php esc_html_e('Avoid duplicate events', 'netpeak-aio'); ?>
+                            </h4>
+                            <p>
+                                <?php
+                                printf(
+                                    /* translators: %s: "Route GA4 through Tag Manager" emphasised */
+                                    esc_html__('If you also enable GA4 above and configure a GA4 tag inside GTM, turn on %s to prevent duplicate events.', 'netpeak-aio'),
+                                    '<strong>' . esc_html__('Route GA4 through Tag Manager', 'netpeak-aio') . '</strong>'
+                                );
+                                ?>
+                            </p>
+                        </div>
                     </div>
                 </section>
 
@@ -145,6 +251,7 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                             <p>
                                 <?php
                                 printf(
+                                    /* translators: %s: link to Meta Events Manager */
                                     esc_html__('Go to %s. Select your Pixel from the left sidebar.', 'netpeak-aio'),
                                     '<a href="https://business.facebook.com/events_manager" target="_blank" rel="noopener">Meta Events Manager</a>'
                                 );
@@ -179,6 +286,7 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                             <p class="netpeak-aio__hint">
                                 <?php
                                 printf(
+                                    /* translators: %s: <code>event_id</code> */
                                     esc_html__('Each event carries a unique %s so that when Conversions API sends the same event server-side, Meta deduplicates them automatically.', 'netpeak-aio'),
                                     '<code>event_id</code>'
                                 );
@@ -215,6 +323,7 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                             <p>
                                 <?php
                                 printf(
+                                    /* translators: %s: link to Google Cloud Console project creation page */
                                     esc_html__('Open %s. Pick any name — it\'s only visible to you.', 'netpeak-aio'),
                                     '<a href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener">' . esc_html__('Google Cloud Console → New Project', 'netpeak-aio') . '</a>'
                                 );
@@ -232,6 +341,7 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                                 <li>
                                     <?php
                                     printf(
+                                        /* translators: %s: link to Search Console API in Google Cloud */
                                         esc_html__('%s — required for Search Console dashboard metrics', 'netpeak-aio'),
                                         '<a href="https://console.cloud.google.com/apis/library/searchconsole.googleapis.com" target="_blank" rel="noopener">' . esc_html__('Search Console API', 'netpeak-aio') . '</a>'
                                     );
@@ -240,6 +350,7 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                                 <li>
                                     <?php
                                     printf(
+                                        /* translators: %s: link to Google Analytics Data API in Google Cloud */
                                         esc_html__('%s — required for GA4 metrics', 'netpeak-aio'),
                                         '<a href="https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com" target="_blank" rel="noopener">' . esc_html__('Google Analytics Data API', 'netpeak-aio') . '</a>'
                                     );
@@ -259,6 +370,7 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                             <p>
                                 <?php
                                 printf(
+                                    /* translators: 1: link to OAuth consent screen, 2: "External" emphasised, 3: webmasters.readonly scope */
                                     esc_html__('Open %1$s. Choose %2$s audience, fill app name and contact email, then add the scope %3$s.', 'netpeak-aio'),
                                     '<a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" rel="noopener">' . esc_html__('APIs & Services → OAuth consent screen', 'netpeak-aio') . '</a>',
                                     '<strong>' . esc_html__('External', 'netpeak-aio') . '</strong>',
@@ -269,6 +381,7 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                             <p class="netpeak-aio__hint">
                                 <?php
                                 printf(
+                                    /* translators: 1: "Testing mode" emphasised, 2: "Test users" emphasised */
                                     esc_html__('While the app is in %1$s, add your own Google account under %2$s — otherwise the consent screen will block with "Access denied".', 'netpeak-aio'),
                                     '<em>' . esc_html__('Testing mode', 'netpeak-aio') . '</em>',
                                     '<strong>' . esc_html__('Test users', 'netpeak-aio') . '</strong>'
@@ -285,6 +398,7 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                             <p>
                                 <?php
                                 printf(
+                                    /* translators: 1: link to Credentials page, 2: "Web application" emphasised */
                                     esc_html__('Go to %1$s. Application type: %2$s.', 'netpeak-aio'),
                                     '<a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">' . esc_html__('Credentials → Create credentials → OAuth client ID', 'netpeak-aio') . '</a>',
                                     '<strong>' . esc_html__('Web application', 'netpeak-aio') . '</strong>'
@@ -294,6 +408,7 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                             <p>
                                 <?php
                                 printf(
+                                    /* translators: %s: "Authorized redirect URIs" emphasised */
                                     esc_html__('Paste this URL into %s — character by character, no trailing slash:', 'netpeak-aio'),
                                     '<strong>' . esc_html__('Authorized redirect URIs', 'netpeak-aio') . '</strong>'
                                 );
@@ -312,6 +427,7 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                             <p class="netpeak-aio__hint">
                                 <?php
                                 printf(
+                                    /* translators: 1: <code>redirect_uri_mismatch</code>, 2: link to Permalinks settings */
                                     esc_html__('Mismatch here triggers a %1$s error on the Google consent screen. Make sure your site uses %2$s.', 'netpeak-aio'),
                                     '<code>redirect_uri_mismatch</code>',
                                     '<a href="' . esc_url(admin_url('options-permalink.php')) . '">' . esc_html__('pretty permalinks (Settings → Permalinks)', 'netpeak-aio') . '</a>'
@@ -328,6 +444,7 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                             <p>
                                 <?php
                                 printf(
+                                    /* translators: %s: "encrypted" emphasised */
                                     esc_html__('Google shows Client ID and Client Secret right after creating the client. Client Secret is stored %s (AES-256-GCM) in the database.', 'netpeak-aio'),
                                     '<strong>' . esc_html__('encrypted', 'netpeak-aio') . '</strong>'
                                 );

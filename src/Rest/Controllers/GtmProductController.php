@@ -7,16 +7,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-
 use WC_Product;
 use WP_REST_Request;
 use WP_REST_Response;
 
 /**
- * Serves lightweight product payloads for the GTM AJAX add_to_cart listener.
+ * Serves lightweight product payloads for the AJAX add_to_cart listener
+ * used by both GoogleAnalytics (gtag) and TagManager (dataLayer) integrations.
  *
- * Public read-only endpoint (WooCommerce product data is already public).
- * Nonce-protected to prevent mass scraping from arbitrary origins.
+ * Nonce-protected, public read (WooCommerce product data is already public).
  *
  * @since 0.1.0
  */
@@ -46,7 +45,9 @@ final class GtmProductController extends AbstractController
      */
     public function check_nonce(): bool
     {
-        $nonce = isset($_SERVER['HTTP_X_WP_NONCE']) ? (string) $_SERVER['HTTP_X_WP_NONCE'] : '';
+        $nonce = isset($_SERVER['HTTP_X_WP_NONCE'])
+            ? sanitize_text_field(wp_unslash($_SERVER['HTTP_X_WP_NONCE']))
+            : '';
 
         return wp_verify_nonce($nonce, 'wp_rest') !== false;
     }
@@ -59,7 +60,7 @@ final class GtmProductController extends AbstractController
     public function get_product(WP_REST_Request $request): WP_REST_Response
     {
         $id = (int) $request->get_param('id');
-        if ($id <= 0) {
+        if ($id <= 0 || !function_exists('wc_get_product')) {
             return new WP_REST_Response(['error' => 'invalid_id'], 400);
         }
 
@@ -79,7 +80,7 @@ final class GtmProductController extends AbstractController
 
         $brand_name  = '';
         $brand_terms = get_the_terms($id, 'product_brand');
-        if (is_array($brand_terms) && !empty($brand_terms)) {
+        if (is_array($brand_terms) && !empty($brand_terms) && isset($brand_terms[0]->name)) {
             $brand_name = (string) $brand_terms[0]->name;
         }
 

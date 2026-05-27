@@ -53,7 +53,7 @@ final class Container
         }
 
         if (!isset($this->factories[$id])) {
-            throw new RuntimeException("Service not registered: {$id}");
+            throw new RuntimeException(esc_html("Service not registered: {$id}"));
         }
 
         return $this->instances[$id] = ($this->factories[$id])($this);

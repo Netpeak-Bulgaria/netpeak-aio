@@ -77,13 +77,13 @@ final class MetaPixel extends AbstractIntegration
             return '';
         }
 
-        $pixel_id  = esc_js((string) $this->settings->get('meta.pixel_id', ''));
-        $events    = $this->build_events_for_current_request();
-        $events_js = $this->render_events_js($events);
+        $pixel_id      = (string) $this->settings->get('meta.pixel_id', '');
+        $events        = $this->build_events_for_current_request();
+        $events_js     = $this->render_events_js($events);
+        $view_event_id = $this->event_id_for('PageView');
 
-        $view_event_id = esc_js($this->event_id_for('PageView'));
-
-        return <<<HTML
+        ob_start();
+        ?>
         <!-- Meta Pixel (Analytics Netpeak AIO) -->
         <script>
         !function(f,b,e,v,n,t,s)
@@ -94,12 +94,13 @@ final class MetaPixel extends AbstractIntegration
         t.src=v;s=b.getElementsByTagName(e)[0];
         s.parentNode.insertBefore(t,s)}(window, document,'script',
         'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '{$pixel_id}');
-        fbq('track', 'PageView', {}, { eventID: '{$view_event_id}' });
-        {$events_js}
+        fbq('init', '<?php echo esc_js($pixel_id); ?>');
+        fbq('track', 'PageView', {}, { eventID: '<?php echo esc_js($view_event_id); ?>' });
+        <?php echo $events_js; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
         </script>
         <!-- End Meta Pixel -->
-        HTML;
+        <?php
+        return (string) ob_get_clean();
     }
 
     /**
@@ -113,15 +114,16 @@ final class MetaPixel extends AbstractIntegration
             return '';
         }
 
-        $pixel_id = esc_attr((string) $this->settings->get('meta.pixel_id', ''));
+        $pixel_id = (string) $this->settings->get('meta.pixel_id', '');
 
-        return <<<HTML
+        ob_start();
+        ?>
         <noscript><img height="1" width="1" style="display:none"
-        src="https://www.facebook.com/tr?id={$pixel_id}&ev=PageView&noscript=1" alt=""
+        src="https://www.facebook.com/tr?id=<?php echo esc_attr($pixel_id); ?>&ev=PageView&noscript=1" alt=""
         /></noscript>
-        HTML;
+        <?php
+        return (string) ob_get_clean();
     }
-
     /**
      * Captures AddToCart into a short-lived transient keyed by session id.
      * The next page render will include the corresponding fbq('track', ...) call.
@@ -162,7 +164,7 @@ final class MetaPixel extends AbstractIntegration
                 'content_type' => 'product',
                 'content_name' => $product->get_name(),
                 'value'        => (float) $product->get_price() * $quantity,
-                'currency'     => function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'USD',
+                'currency'     => function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'EUR',
                 'contents'     => [[
                     'id'         => (string) $effective_id,
                     'quantity'   => $quantity,
@@ -170,8 +172,7 @@ final class MetaPixel extends AbstractIntegration
                 ]],
             ],
         ];
-
-        set_transient(self::DEFERRED_TRANSIENT_PREFIX . $session_key, [$event], 5 * MINUTE_IN_SECONDS);
+        \set_transient(self::DEFERRED_TRANSIENT_PREFIX . $session_key, [$event], 5 * MINUTE_IN_SECONDS);
     }
 
     /**
@@ -254,7 +255,7 @@ final class MetaPixel extends AbstractIntegration
                 'content_name'     => $product->get_name(),
                 'content_category' => $category,
                 'value'            => (float) $product->get_price(),
-                'currency'         => function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'USD',
+                'currency'         => function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'EUR',
             ],
         ];
     }
