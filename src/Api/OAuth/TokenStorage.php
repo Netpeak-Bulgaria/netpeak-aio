@@ -17,7 +17,7 @@ use Netpeak\Support\Encryption;
  */
 final class TokenStorage
 {
-    private const OPTION_KEY  = 'google_oauth_tokens';
+    private const OPTION_KEY  = 'netpeak_aio_google_oauth_tokens';
     private const SAFETY_SKEW = 60;
 
     /**

@@ -1,5 +1,5 @@
-=== Analytics Kit All-in-One by Netpeak Bulgaria ===
-Contributors: netpeak
+=== Netpeak Analytics Kit ===
+Contributors: netpeakbulgaria, masiknetpeak
 Tags: analytics, google analytics, google tag manager, search console, meta pixel
 Requires at least: 6.7
 Tested up to: 7.0
@@ -12,7 +12,7 @@ Connect Google Analytics 4, Google Tag Manager, Google Search Console, and Meta 
 
 == Description ==
 
-Analytics Kit All-in-One by Netpeak Bulgaria helps site owners add and manage common marketing and analytics integrations without editing theme files.
+Netpeak Analytics Kit helps site owners add and manage common marketing and analytics integrations without editing theme files.
 
 Current features in version 0.1.0:
 
@@ -68,7 +68,7 @@ Site owners are responsible for obtaining any required consent before enabling t
 
 == Installation ==
 
-1. Upload the plugin folder to `/wp-content/plugins/netpeak-aio/`.
+1. Upload the plugin folder to `/wp-content/plugins/netpeak-analytics-kit/`.
 2. Activate the plugin through the Plugins screen in WordPress.
 3. Open Netpeak AIO in the WordPress admin.
 4. Configure the integrations you want to use.

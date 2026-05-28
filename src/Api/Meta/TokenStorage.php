@@ -24,7 +24,7 @@ use Netpeak\Support\Encryption;
  */
 final class TokenStorage
 {
-    private const OPTION_KEY = 'ntp_aio_meta_capi_token';
+    private const OPTION_KEY = 'netpeak_aio_meta_capi_token';
 
     /**
      * @param string $token Plain-text access token. Empty string clears storage.

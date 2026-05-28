@@ -11,10 +11,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 ?>
-<div class="wrap netpeak-aio">
+<div class="wrap netpeak-analytics-kit">
     <h1><?php echo esc_html($title); ?></h1>
 
-    <div class="netpeak-aio__content">
+    <div class="netpeak-analytics-kit__content">
         <?php include $view; ?>
     </div>
 </div>

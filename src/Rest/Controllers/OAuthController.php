@@ -22,7 +22,7 @@ use WP_REST_Response;
  */
 final class OAuthController extends AbstractController
 {
-    private const STATE_TRANSIENT = 'google_aio_oauth_state';
+    private const STATE_TRANSIENT = 'netpeak_aio_google_oauth_state';
     private const STATE_TTL       = 15 * MINUTE_IN_SECONDS;
 
     /**
@@ -96,7 +96,9 @@ final class OAuthController extends AbstractController
             wp_safe_redirect(admin_url('admin.php?page=' . AdminMenu::CONNECT_SLUG . '&connected=1'));
             exit;
         } catch (Throwable $e) {
-            return new WP_REST_Response(['error' => $e->getMessage()], 500);
+            return new WP_REST_Response([
+                'error' => esc_html__('OAuth token exchange failed. Please reconnect.', 'netpeak-analytics-kit'),
+            ], 500);
         }
     }
 

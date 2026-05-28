@@ -14,7 +14,6 @@ use Netpeak\Api\OAuth\TokenStorage as GoogleTokenStorage;
 use Netpeak\Api\SearchConsole\SearchConsoleClient;
 use Netpeak\Api\Analytics\GoogleAnalyticsClient;
 use Netpeak\Frontend\BodyInjector;
-use Netpeak\Frontend\HeadInjector;
 use Netpeak\Integrations\GoogleAnalytics;
 use Netpeak\Integrations\MetaPixel;
 use Netpeak\Integrations\SearchConsole;
@@ -228,7 +227,6 @@ final class Plugin
             $integration->register();
         }
 
-        (new HeadInjector($injectors))->register();
         (new BodyInjector($injectors))->register();
 
         /** @var RestRouter $rest */

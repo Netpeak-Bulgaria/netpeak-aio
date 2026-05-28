@@ -1,10 +1,10 @@
-.netpeak-aio__content {
+.netpeak-analytics-kit__content {
     margin-top: 1rem;
 }
 
 /* ---------- Two-column layout (sidebar + panel) ---------- */
 
-.netpeak-aio__layout {
+.netpeak-analytics-kit__layout {
     display: grid;
     grid-template-columns: 220px 1fr;
     gap: 1.5rem;
@@ -12,14 +12,14 @@
 }
 
 @media (max-width: 782px) {
-    .netpeak-aio__layout {
+    .netpeak-analytics-kit__layout {
         grid-template-columns: 1fr;
     }
 }
 
 /* ---------- Sidebar ---------- */
 
-.netpeak-aio__sidebar {
+.netpeak-analytics-kit__sidebar {
     background: #fff;
     border: 1px solid #dcdcde;
     border-radius: 4px;
@@ -28,13 +28,13 @@
     top: 2rem;
 }
 
-.netpeak-aio__nav-group + .netpeak-aio__nav-group {
+.netpeak-analytics-kit__nav-group + .netpeak-analytics-kit__nav-group {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
     border-top: 1px solid #f0f0f1;
 }
 
-.netpeak-aio__nav-group-title {
+.netpeak-analytics-kit__nav-group-title {
     margin: 0 0 0.4rem;
     padding: 0 1rem;
     font-size: 11px;
@@ -44,13 +44,13 @@
     color: #8c8f94;
 }
 
-.netpeak-aio__nav-list {
+.netpeak-analytics-kit__nav-list {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-.netpeak-aio__nav-item {
+.netpeak-analytics-kit__nav-item {
     display: block;
     width: 100%;
     text-align: left;
@@ -64,25 +64,25 @@
     transition: background 0.1s ease, color 0.1s ease, border-color 0.1s ease;
 }
 
-.netpeak-aio__nav-item:hover {
+.netpeak-analytics-kit__nav-item:hover {
     background: #f6f7f7;
     color: #1d2327;
 }
 
-.netpeak-aio__nav-item--active {
+.netpeak-analytics-kit__nav-item--active {
     background: #f0f6fc;
     border-left-color: #2271b1;
     color: #2271b1;
     font-weight: 600;
 }
 
-.netpeak-aio__nav-label {
+.netpeak-analytics-kit__nav-label {
     display: inline-block;
 }
 
 /* ---------- Panel ---------- */
 
-.netpeak-aio__panel {
+.netpeak-analytics-kit__panel {
     background: #fff;
     border: 1px solid #dcdcde;
     border-radius: 4px;
@@ -90,7 +90,7 @@
     min-height: 400px;
 }
 
-.netpeak-aio__section-title {
+.netpeak-analytics-kit__section-title {
     margin: 0 0 1rem;
     padding-bottom: 0.6rem;
     border-bottom: 1px solid #f0f0f1;
@@ -98,28 +98,28 @@
     color: #1d2327;
 }
 
-.netpeak-aio__lede {
+.netpeak-analytics-kit__lede {
     color: #50575e;
     margin: 0 0 1rem;
 }
 
 /* ---------- Dashboard cards (kept from before) ---------- */
 
-.netpeak-aio__grid {
+.netpeak-analytics-kit__grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
 
-.netpeak-aio__card {
+.netpeak-analytics-kit__card {
     background: #fff;
     padding: 1.25rem;
     border: 1px solid #c3c4c7;
     border-radius: 4px;
 }
 
-.netpeak-aio__card-label {
+.netpeak-analytics-kit__card-label {
     font-size: 12px;
     color: #50575e;
     text-transform: uppercase;
@@ -127,7 +127,7 @@
     margin: 0 0 0.5rem;
 }
 
-.netpeak-aio__card-value {
+.netpeak-analytics-kit__card-value {
     font-size: 1.75rem;
     font-weight: 600;
     color: #1d2327;
@@ -137,25 +137,25 @@
 
 /* ---------- Form rows ---------- */
 
-.netpeak-aio__row {
+.netpeak-analytics-kit__row {
     display: flex;
     gap: 1rem;
     align-items: center;
     margin-bottom: 1rem;
 }
 
-.netpeak-aio__label {
+.netpeak-analytics-kit__label {
     min-width: 180px;
     font-weight: 600;
     color: #1d2327;
 }
 
-.netpeak-aio__input {
+.netpeak-analytics-kit__input {
     flex: 1;
     max-width: 420px;
 }
 
-.netpeak-aio__checkbox-row {
+.netpeak-analytics-kit__checkbox-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -164,7 +164,7 @@
 
 /* ---------- Status pill ---------- */
 
-.netpeak-aio__status {
+.netpeak-analytics-kit__status {
     display: inline-block;
     padding: 2px 10px;
     border-radius: 12px;
@@ -172,19 +172,19 @@
     font-weight: 600;
 }
 
-.netpeak-aio__status--connected {
+.netpeak-analytics-kit__status--connected {
     background: #e7f7ee;
     color: #0a7a2f;
 }
 
-.netpeak-aio__status--disconnected {
+.netpeak-analytics-kit__status--disconnected {
     background: #f2f2f2;
     color: #555;
 }
 
 /* ---------- Feedback ---------- */
 
-.netpeak-aio__toast {
+.netpeak-analytics-kit__toast {
     display: inline-block;
     margin-left: 1rem;
     padding: 4px 10px;
@@ -195,7 +195,7 @@
     font-weight: 500;
 }
 
-.netpeak-aio__error {
+.netpeak-analytics-kit__error {
     color: #b30000;
     background: #ffecec;
     padding: 0.75rem 1rem;
@@ -203,13 +203,13 @@
     margin-bottom: 1rem;
 }
 
-.netpeak-aio__loading {
+.netpeak-analytics-kit__loading {
     color: #50575e;
     font-style: italic;
     padding: 0.75rem 0;
 }
 
-.netpeak-aio__actions {
+.netpeak-analytics-kit__actions {
     margin-top: 1.5rem;
     padding-top: 1rem;
     border-top: 1px solid #f0f0f1;
@@ -217,7 +217,7 @@
 
 /* ---------- Dashboard table ---------- */
 
-.netpeak-aio__table {
+.netpeak-analytics-kit__table {
     width: 100%;
     border-collapse: collapse;
     background: #fff;
@@ -226,37 +226,37 @@
     overflow: hidden;
 }
 
-.netpeak-aio__table th,
-.netpeak-aio__table td {
+.netpeak-analytics-kit__table th,
+.netpeak-analytics-kit__table td {
     padding: 0.6rem 0.9rem;
     text-align: left;
     border-bottom: 1px solid #f0f0f1;
     font-size: 13px;
 }
 
-.netpeak-aio__table th {
+.netpeak-analytics-kit__table th {
     background: #f6f7f7;
     font-weight: 600;
     color: #1d2327;
 }
 
-.netpeak-aio__table tr:last-child td {
+.netpeak-analytics-kit__table tr:last-child td {
     border-bottom: none;
 }
 
-.netpeak-aio__table td.num,
-.netpeak-aio__table th.num {
+.netpeak-analytics-kit__table td.num,
+.netpeak-analytics-kit__table th.num {
     text-align: right;
     font-variant-numeric: tabular-nums;
 }
 
 /* ---------- OAuth docs (stepper) ---------- */
 
-.netpeak-aio__docs {
+.netpeak-analytics-kit__docs {
     margin-bottom: 1.5rem;
 }
 
-.netpeak-aio__step {
+.netpeak-analytics-kit__step {
     background: #fbfbfc;
     border: 1px solid #f0f0f1;
     border-radius: 4px;
@@ -264,7 +264,7 @@
     margin-bottom: 0.75rem;
 }
 
-.netpeak-aio__step-title {
+.netpeak-analytics-kit__step-title {
     display: flex;
     align-items: center;
     gap: 0.6rem;
@@ -274,7 +274,7 @@
     color: #1d2327;
 }
 
-.netpeak-aio__step-num {
+.netpeak-analytics-kit__step-num {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -288,13 +288,13 @@
     flex-shrink: 0;
 }
 
-.netpeak-aio__step p {
+.netpeak-analytics-kit__step p {
     margin: 0.5rem 0;
     color: #50575e;
     line-height: 1.5;
 }
 
-.netpeak-aio__hint {
+.netpeak-analytics-kit__hint {
     background: #fcf9e8;
     border-left: 3px solid #dba617;
     padding: 0.5rem 0.75rem;
@@ -303,7 +303,7 @@
     margin: 1rem 0;
 }
 
-.netpeak-aio__callout {
+.netpeak-analytics-kit__callout {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -314,7 +314,7 @@
     margin: 0.5rem 0;
 }
 
-.netpeak-aio__callout-code {
+.netpeak-analytics-kit__callout-code {
     flex: 1;
     font-family: Consolas, Monaco, monospace;
     font-size: 13px;
@@ -324,7 +324,7 @@
     padding: 0;
 }
 
-.netpeak-aio__screenshot {
+.netpeak-analytics-kit__screenshot {
     display: block;
     max-width: 100%;
     margin-top: 0.5rem;
@@ -336,13 +336,13 @@
    Connect page
    ============================================================= */
 
-.netpeak-aio__connect {
+.netpeak-analytics-kit__connect {
     max-width: 860px;
 }
 
 /* ---------- Hero block ---------- */
 
-.netpeak-aio__hero {
+.netpeak-analytics-kit__hero {
     display: flex;
     gap: 1.5rem;
     align-items: flex-start;
@@ -355,16 +355,16 @@
     transition: border-color 0.15s ease;
 }
 
-.netpeak-aio__hero--connected {
+.netpeak-analytics-kit__hero--connected {
     border-color: #b6e3c6;
     background: linear-gradient(180deg, #f6fdf8 0%, #ffffff 100%);
 }
 
-.netpeak-aio__hero--disconnected {
+.netpeak-analytics-kit__hero--disconnected {
     border-color: #dcdcde;
 }
 
-.netpeak-aio__hero-icon {
+.netpeak-analytics-kit__hero-icon {
     flex-shrink: 0;
     width: 56px;
     height: 56px;
@@ -376,16 +376,16 @@
     border-radius: 50%;
 }
 
-.netpeak-aio__hero-body {
+.netpeak-analytics-kit__hero-body {
     flex: 1;
     min-width: 0;
 }
 
-.netpeak-aio__hero-status {
+.netpeak-analytics-kit__hero-status {
     margin-bottom: 0.4rem;
 }
 
-.netpeak-aio__hero-title {
+.netpeak-analytics-kit__hero-title {
     margin: 0 0 0.5rem;
     font-size: 20px;
     font-weight: 600;
@@ -393,7 +393,7 @@
     line-height: 1.3;
 }
 
-.netpeak-aio__hero-lede {
+.netpeak-analytics-kit__hero-lede {
     margin: 0 0 1rem;
     font-size: 14px;
     color: #50575e;
@@ -401,7 +401,7 @@
     max-width: 560px;
 }
 
-.netpeak-aio__hero-actions {
+.netpeak-analytics-kit__hero-actions {
     display: flex;
     gap: 0.5rem;
     align-items: center;
@@ -409,7 +409,7 @@
 
 /* ---------- Checklist ---------- */
 
-.netpeak-aio__checklist {
+.netpeak-analytics-kit__checklist {
     background: #fff;
     border: 1px solid #dcdcde;
     border-radius: 6px;
@@ -417,7 +417,7 @@
     margin-bottom: 1.5rem;
 }
 
-.netpeak-aio__checklist-title {
+.netpeak-analytics-kit__checklist-title {
     margin: 0 0 1rem;
     padding-bottom: 0.6rem;
     border-bottom: 1px solid #f0f0f1;
@@ -426,13 +426,13 @@
     color: #1d2327;
 }
 
-.netpeak-aio__checklist-list {
+.netpeak-analytics-kit__checklist-list {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-.netpeak-aio__checklist-item {
+.netpeak-analytics-kit__checklist-item {
     display: flex;
     gap: 1rem;
     align-items: flex-start;
@@ -440,16 +440,16 @@
     border-bottom: 1px solid #f6f7f7;
 }
 
-.netpeak-aio__checklist-item:last-child {
+.netpeak-analytics-kit__checklist-item:last-child {
     border-bottom: none;
     padding-bottom: 0;
 }
 
-.netpeak-aio__checklist-item:first-child {
+.netpeak-analytics-kit__checklist-item:first-child {
     padding-top: 0;
 }
 
-.netpeak-aio__checklist-num {
+.netpeak-analytics-kit__checklist-num {
     flex-shrink: 0;
     display: inline-flex;
     align-items: center;
@@ -464,41 +464,41 @@
     margin-top: 2px;
 }
 
-.netpeak-aio__checklist-label {
+.netpeak-analytics-kit__checklist-label {
     margin: 0 0 0.25rem;
     font-size: 14px;
     font-weight: 600;
     color: #1d2327;
 }
 
-.netpeak-aio__checklist-desc {
+.netpeak-analytics-kit__checklist-desc {
     margin: 0;
     font-size: 13px;
     color: #50575e;
     line-height: 1.5;
 }
 
-.netpeak-aio__checklist-desc + .netpeak-aio__callout {
+.netpeak-analytics-kit__checklist-desc + .netpeak-analytics-kit__callout {
     margin-top: 0.5rem;
 }
 
 /* ---------- Privacy note ---------- */
 
-.netpeak-aio__privacy {
+.netpeak-analytics-kit__privacy {
     background: #fbfbfc;
     border: 1px solid #f0f0f1;
     border-radius: 6px;
     padding: 1.25rem 1.75rem;
 }
 
-.netpeak-aio__privacy-title {
+.netpeak-analytics-kit__privacy-title {
     margin: 0 0 0.75rem;
     font-size: 14px;
     font-weight: 600;
     color: #1d2327;
 }
 
-.netpeak-aio__privacy-list {
+.netpeak-analytics-kit__privacy-list {
     margin: 0;
     padding-left: 1.25rem;
     font-size: 13px;
@@ -506,7 +506,7 @@
     line-height: 1.6;
 }
 
-.netpeak-aio__privacy-list li + li {
+.netpeak-analytics-kit__privacy-list li + li {
     margin-top: 0.3rem;
 }
 
@@ -514,20 +514,20 @@
    Dashboard
    ============================================================= */
 
-.netpeak-aio__dashboard {
+.netpeak-analytics-kit__dashboard {
     max-width: 1200px;
 }
 
 /* ---------- Toolbar ---------- */
 
-.netpeak-aio__toolbar {
+.netpeak-analytics-kit__toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1rem;
 }
 
-.netpeak-aio__range {
+.netpeak-analytics-kit__range {
     display: inline-flex;
     background: #fff;
     border: 1px solid #dcdcde;
@@ -535,7 +535,7 @@
     overflow: hidden;
 }
 
-.netpeak-aio__range-btn {
+.netpeak-analytics-kit__range-btn {
     background: transparent;
     border: none;
     border-right: 1px solid #dcdcde;
@@ -546,20 +546,20 @@
     transition: background 0.1s ease, color 0.1s ease;
 }
 
-.netpeak-aio__range-btn:last-child {
+.netpeak-analytics-kit__range-btn:last-child {
     border-right: none;
 }
 
-.netpeak-aio__range-btn:hover {
+.netpeak-analytics-kit__range-btn:hover {
     background: #f6f7f7;
 }
 
-.netpeak-aio__range-btn--active {
+.netpeak-analytics-kit__range-btn--active {
     background: #2271b1;
     color: #fff;
 }
 
-.netpeak-aio__loading-pill {
+.netpeak-analytics-kit__loading-pill {
     display: inline-block;
     padding: 2px 10px;
     background: #eef3ff;
@@ -571,11 +571,11 @@
 
 /* ---------- Row groups ---------- */
 
-.netpeak-aio__row-group {
+.netpeak-analytics-kit__row-group {
     margin-bottom: 1.5rem;
 }
 
-.netpeak-aio__row-title {
+.netpeak-analytics-kit__row-title {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -587,35 +587,35 @@
     letter-spacing: 0.04em;
 }
 
-.netpeak-aio__row-accent {
+.netpeak-analytics-kit__row-accent {
     display: inline-block;
     width: 8px;
     height: 8px;
     border-radius: 50%;
 }
 
-.netpeak-aio__row-accent--gsc { background: #2271b1; }
-.netpeak-aio__row-accent--ga4 { background: #ea8038; }
+.netpeak-analytics-kit__row-accent--gsc { background: #2271b1; }
+.netpeak-analytics-kit__row-accent--ga4 { background: #ea8038; }
 
 /* ---------- Cards with delta ---------- */
 
-.netpeak-aio__card-delta {
+.netpeak-analytics-kit__card-delta {
     margin: 0.4rem 0 0;
     font-size: 12px;
     font-weight: 500;
 }
 
-.netpeak-aio__card-delta--up   { color: #0a7a2f; }
-.netpeak-aio__card-delta--down { color: #b30000; }
-.netpeak-aio__card-delta--flat { color: #8c8f94; }
+.netpeak-analytics-kit__card-delta--up   { color: #0a7a2f; }
+.netpeak-analytics-kit__card-delta--down { color: #b30000; }
+.netpeak-analytics-kit__card-delta--flat { color: #8c8f94; }
 
-.netpeak-aio__card-delta--up::before   { content: '▲ '; }
-.netpeak-aio__card-delta--down::before { content: '▼ '; }
-.netpeak-aio__card-delta--flat::before { content: '▬ '; }
+.netpeak-analytics-kit__card-delta--up::before   { content: '▲ '; }
+.netpeak-analytics-kit__card-delta--down::before { content: '▼ '; }
+.netpeak-analytics-kit__card-delta--flat::before { content: '▬ '; }
 
 /* ---------- Chart block ---------- */
 
-.netpeak-aio__chart-block {
+.netpeak-analytics-kit__chart-block {
     background: #fff;
     border: 1px solid #dcdcde;
     border-radius: 6px;
@@ -623,7 +623,7 @@
     margin-bottom: 1.5rem;
 }
 
-.netpeak-aio__chart-header {
+.netpeak-analytics-kit__chart-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -632,20 +632,20 @@
     margin-bottom: 1rem;
 }
 
-.netpeak-aio__chart-title {
+.netpeak-analytics-kit__chart-title {
     margin: 0;
     font-size: 15px;
     font-weight: 600;
     color: #1d2327;
 }
 
-.netpeak-aio__metric-picker {
+.netpeak-analytics-kit__metric-picker {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
 }
 
-.netpeak-aio__metric-btn {
+.netpeak-analytics-kit__metric-btn {
     background: transparent;
     border: 1px solid #dcdcde;
     border-radius: 4px;
@@ -656,32 +656,32 @@
     transition: background 0.1s ease, color 0.1s ease, border-color 0.1s ease;
 }
 
-.netpeak-aio__metric-btn:hover {
+.netpeak-analytics-kit__metric-btn:hover {
     background: #f6f7f7;
     color: #1d2327;
 }
 
-.netpeak-aio__metric-btn--active {
+.netpeak-analytics-kit__metric-btn--active {
     background: #2271b1;
     color: #fff;
     border-color: #2271b1;
 }
 
-.netpeak-aio__chart-canvas {
+.netpeak-analytics-kit__chart-canvas {
     position: relative;
     height: 280px;
 }
 
 /* ---------- Top queries block ---------- */
 
-.netpeak-aio__table-block {
+.netpeak-analytics-kit__table-block {
     background: #fff;
     border: 1px solid #dcdcde;
     border-radius: 6px;
     padding: 1.25rem 1.5rem;
 }
 
-.netpeak-aio__table-title {
+.netpeak-analytics-kit__table-title {
     margin: 0 0 0.75rem;
     font-size: 15px;
     font-weight: 600;
@@ -690,14 +690,14 @@
 
 /* === Top tabs over the GSC table ======================================== */
 
-.netpeak-aio__top-tabs {
+.netpeak-analytics-kit__top-tabs {
     display: flex;
     gap: 4px;
     border-bottom: 1px solid #dcdcde;
     margin-bottom: 16px;
 }
 
-.netpeak-aio__top-tab {
+.netpeak-analytics-kit__top-tab {
     background: transparent;
     border: 0;
     border-bottom: 2px solid transparent;
@@ -709,16 +709,16 @@
     transition: color 0.15s ease, border-color 0.15s ease;
 }
 
-.netpeak-aio__top-tab:hover {
+.netpeak-analytics-kit__top-tab:hover {
     color: #1e1e1e;
 }
 
-.netpeak-aio__top-tab--active {
+.netpeak-analytics-kit__top-tab--active {
     color: #2271b1;
     border-bottom-color: #2271b1;
 }
 
-.netpeak-aio__empty {
+.netpeak-analytics-kit__empty {
     padding: 24px;
     color: #646970;
     text-align: center;
@@ -728,43 +728,43 @@
 /* === Spinner & loading overlays ========================================== */
 
 /* Base SVG spinner — rotates + animates stroke-dash */
-.netpeak-aio__spinner {
+.netpeak-analytics-kit__spinner {
     display: inline-block;
     width: 24px;
     height: 24px;
-    animation: netpeak-aio-spin 1s linear infinite;
+    animation: netpeak-analytics-kit-spin 1s linear infinite;
 }
 
-.netpeak-aio__spinner circle {
+.netpeak-analytics-kit__spinner circle {
     stroke: currentColor;
     stroke-linecap: round;
     stroke-dasharray: 90, 150;
     stroke-dashoffset: 0;
-    animation: netpeak-aio-spin-dash 1.5s ease-in-out infinite;
+    animation: netpeak-analytics-kit-spin-dash 1.5s ease-in-out infinite;
 }
 
-@keyframes netpeak-aio-spin {
+@keyframes netpeak-analytics-kit-spin {
     to { transform: rotate(360deg); }
 }
 
-@keyframes netpeak-aio-spin-dash {
+@keyframes netpeak-analytics-kit-spin-dash {
     0%   { stroke-dasharray: 1, 150;   stroke-dashoffset: 0;    }
     50%  { stroke-dasharray: 90, 150;  stroke-dashoffset: -35;  }
     100% { stroke-dasharray: 90, 150;  stroke-dashoffset: -124; }
 }
 
 /* Blocks that can be overlaid during loading */
-.netpeak-aio__row-group,
-.netpeak-aio__chart-block,
-.netpeak-aio__table-block {
+.netpeak-analytics-kit__row-group,
+.netpeak-analytics-kit__chart-block,
+.netpeak-analytics-kit__table-block {
     position: relative;
     transition: opacity 0.2s ease;
 }
 
-.netpeak-aio__row-group.is-loading .netpeak-aio__grid,
-.netpeak-aio__chart-block.is-loading .netpeak-aio__chart-canvas,
-.netpeak-aio__table-block.is-loading .netpeak-aio__table,
-.netpeak-aio__table-block.is-loading .netpeak-aio__empty {
+.netpeak-analytics-kit__row-group.is-loading .netpeak-analytics-kit__grid,
+.netpeak-analytics-kit__chart-block.is-loading .netpeak-analytics-kit__chart-canvas,
+.netpeak-analytics-kit__table-block.is-loading .netpeak-analytics-kit__table,
+.netpeak-analytics-kit__table-block.is-loading .netpeak-analytics-kit__empty {
     opacity: 0.35;
     pointer-events: none;
     filter: blur(0.5px);
@@ -772,7 +772,7 @@
 }
 
 /* Centered spinner over the dimmed block */
-.netpeak-aio__overlay {
+.netpeak-analytics-kit__overlay {
     position: absolute;
     inset: 0;
     display: flex;
@@ -783,13 +783,13 @@
     color: #2271b1;
 }
 
-.netpeak-aio__overlay .netpeak-aio__spinner {
+.netpeak-analytics-kit__overlay .netpeak-analytics-kit__spinner {
     width: 36px;
     height: 36px;
 }
 
 /* Loading pill in the toolbar (smaller, inline) */
-.netpeak-aio__loading-pill {
+.netpeak-analytics-kit__loading-pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -801,7 +801,7 @@
     font-weight: 500;
 }
 
-.netpeak-aio__loading-pill .netpeak-aio__spinner {
+.netpeak-analytics-kit__loading-pill .netpeak-analytics-kit__spinner {
     width: 14px;
     height: 14px;
 }

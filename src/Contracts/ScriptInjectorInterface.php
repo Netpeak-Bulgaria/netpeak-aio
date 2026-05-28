@@ -15,13 +15,6 @@ if (!defined('ABSPATH')) {
 interface ScriptInjectorInterface
 {
     /**
-     * HTML to echo inside wp_head. Empty string means nothing to output.
-     *
-     * @return string
-     */
-    public function render_head(): string;
-
-    /**
      * HTML to echo inside wp_body_open (e.g. GTM noscript iframe).
      *
      * @return string

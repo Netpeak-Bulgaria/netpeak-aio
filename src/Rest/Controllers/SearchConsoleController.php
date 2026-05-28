@@ -129,7 +129,7 @@ final class SearchConsoleController extends AbstractController
         $dimension = (string) $request->get_param('dimension');
         if (!in_array($dimension, self::ALLOWED_DIMENSIONS, true)) {
             return new WP_REST_Response([
-                'error' => __('Unsupported dimension. Allowed: query, page, country.', 'netpeak-aio'),
+                'error' => __('Unsupported dimension. Allowed: query, page, country.', 'netpeak-analytics-kit'),
             ], 400);
         }
 
@@ -215,16 +215,16 @@ final class SearchConsoleController extends AbstractController
             || stripos($raw, 'not have') !== false
         ) {
             $status  = 403;
-            $message = __('The connected Google account does not have access to this Search Console property.', 'netpeak-aio');
+            $message = __('The connected Google account does not have access to this Search Console property.', 'netpeak-analytics-kit');
         } elseif (stripos($raw, 'not been used') !== false || stripos($raw, 'disabled') !== false) {
             $status  = 400;
-            $message = __('Search Console API is not enabled in your Google Cloud project. Enable it and retry in 1–2 minutes.', 'netpeak-aio');
+            $message = __('Search Console API is not enabled in your Google Cloud project. Enable it and retry in 1–2 minutes.', 'netpeak-analytics-kit');
         } elseif (stripos($raw, 'invalid_grant') !== false || stripos($raw, 'token expired') !== false) {
             $status  = 401;
-            $message = __('Google connection expired. Reconnect your account on the Connect Google page.', 'netpeak-aio');
+            $message = __('Google connection expired. Reconnect your account on the Connect Google page.', 'netpeak-analytics-kit');
         } elseif (stripos($raw, 'rate limit') !== false || stripos($raw, 'quota') !== false) {
             $status  = 429;
-            $message = __('Google API rate limit reached. Try again in a minute.', 'netpeak-aio');
+            $message = __('Google API rate limit reached. Try again in a minute.', 'netpeak-analytics-kit');
         }
 
         return new WP_REST_Response(['error' => $message, 'raw' => $raw], $status);

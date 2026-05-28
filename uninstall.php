@@ -25,39 +25,16 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 $netpeak_aio_cleanup = static function (): void {
     $options = [
         'netpeak_aio_settings',
-        'google_oauth_tokens',
-        'google_aio_oauth_tokens',
+        'netpeak_aio_google_oauth_tokens',
         'netpeak_aio_version',
-        'NTP_AIO_VERSION',
-        'ntp_aio_meta_capi_token',
+        'netpeak_aio_meta_capi_token',
     ];
 
     foreach ($options as $option) {
         delete_option($option);
     }
 
-    delete_transient('google_aio_oauth_state');
-
-    global $wpdb;
-
-    $transient_prefixes = [
-        '_transient_netpeak_aio_',
-        '_transient_timeout_netpeak_aio_',
-        '_transient_google_aio_',
-        '_transient_timeout_google_aio_',
-        '_transient_ntp_aio_meta_pixel_deferred_',
-        '_transient_timeout_ntp_aio_meta_pixel_deferred_',
-    ];
-
-    foreach ($transient_prefixes as $prefix) {
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Wildcard DELETE on uninstall, no caching needed.
-        $wpdb->query(
-            $wpdb->prepare(
-                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-                $wpdb->esc_like($prefix) . '%'
-            )
-        );
-    }
+    delete_transient('netpeak_aio_google_oauth_state');
 
     $scheduled_hooks = [
         'netpeak_aio_token_refresh',

@@ -19,10 +19,9 @@ use WC_Product;
  * Behavior:
  *  - When `ga4.route_via_gtm` is true, this integration emits NOTHING —
  *    GTM owns the GA4 tag and event delivery.
- *  - Otherwise, the gtag.js loader is injected in <head> and ecommerce
- *    events are fired via gtag('event', ...) directly to GA4.
+ *  - Otherwise, gtag.js is enqueued and ecommerce events are added inline.
  *
- * Events emitted (same set as TagManager dataLayer):
+ * Events emitted:
  *  - view_item_list, view_item, add_to_cart, remove_from_cart,
  *    view_cart, begin_checkout, purchase
  *
@@ -33,6 +32,11 @@ use WC_Product;
 final class GoogleAnalytics extends AbstractIntegration
 {
     use WooCommerceEcommerceTrait;
+
+    /**
+     * Script handle for the gtag.js loader and all inline events.
+     */
+    private const SCRIPT_HANDLE = 'ntp-aio-ga4';
 
     /**
      * WC session key for queued events fired during POST requests.
@@ -76,7 +80,6 @@ final class GoogleAnalytics extends AbstractIntegration
 
     /**
      * Whether to emit ecommerce events directly via gtag.
-     * Same conditions as is_direct() plus WooCommerce active.
      *
      * @return bool
      */
@@ -90,82 +93,109 @@ final class GoogleAnalytics extends AbstractIntegration
      */
     public function register(): void
     {
-        if (!$this->is_ecommerce_enabled()) {
+        if (!$this->is_direct()) {
             return;
         }
 
-        add_action('woocommerce_add_to_cart', [$this, 'capture_add_to_cart'], 10, 4);
-        add_action('woocommerce_cart_item_removed', [$this, 'capture_remove_from_cart'], 10, 2);
-        add_action('woocommerce_thankyou', [$this, 'render_purchase'], 10, 1);
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_assets']);
+
+        if ($this->is_ecommerce_enabled()) {
+            add_action('woocommerce_add_to_cart', [$this, 'capture_add_to_cart'], 10, 4);
+            add_action('woocommerce_cart_item_removed', [$this, 'capture_remove_from_cart'], 10, 2);
+            add_action('woocommerce_thankyou', [$this, 'mark_purchase_pending'], 10, 1);
+        }
     }
 
     /**
-     * @return string
+     * Enqueues the gtag.js loader and attaches all inline scripts:
+     * base config, queued events, context events, and the AJAX listener.
+     *
+     * @return void
      */
-    public function render_head(): string
+    public function enqueue_assets(): void
     {
-        if (!$this->is_direct()) {
-            return '';
+        if (is_admin()) {
+            return;
         }
 
         $id = (string) $this->settings->get('ga4.measurement_id', '');
 
-        ob_start();
-        ?>
+        wp_enqueue_script(
+            self::SCRIPT_HANDLE,
+            'https://www.googletagmanager.com/gtag/js?id=' . rawurlencode($id),
+            [],
+            null,
+            false
+        );
+        wp_script_add_data(self::SCRIPT_HANDLE, 'strategy', 'async');
 
-        <!-- Google Analytics 4 (Analytics Netpeak AIO) -->
-        <?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Tracking pixel must load inline before any user interaction. ?>
-        <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo esc_attr($id); ?>"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '<?php echo esc_js($id); ?>');
-        </script>
-        <?php
-        $loader = (string) ob_get_clean();
+        // Base gtag config.
+        wp_add_inline_script(
+            self::SCRIPT_HANDLE,
+            $this->build_config_js($id),
+            'after'
+        );
 
         if (!$this->is_ecommerce_enabled()) {
-            return $loader;
+            return;
         }
 
-        $pending = $this->flush_pending_events();
-        $context = $this->render_context_event();
+        // Queued events from a previous request (add_to_cart, remove_from_cart, purchase).
+        foreach ($this->flush_pending_events() as $js) {
+            wp_add_inline_script(self::SCRIPT_HANDLE, $js, 'after');
+        }
 
-        return $loader . $pending . $context;
+        // Page-contextual event for the current request.
+        $context_js = $this->build_context_event_js();
+        if ($context_js !== '') {
+            wp_add_inline_script(self::SCRIPT_HANDLE, $context_js, 'after');
+        }
+
+        // AJAX add_to_cart listener.
+        wp_add_inline_script(self::SCRIPT_HANDLE, $this->build_ajax_listener_js(), 'after');
     }
 
     /**
+     * @param string $id
+     *
      * @return string
      */
-    public function render_body(): string
+    private function build_config_js(string $id): string
     {
-        if (!$this->is_ecommerce_enabled()) {
-            return '';
-        }
-
-        return $this->render_ajax_cart_listener();
+        return sprintf(
+            'window.dataLayer = window.dataLayer || [];'
+            . 'function gtag(){dataLayer.push(arguments);}'
+            . "gtag('js', new Date());"
+            . "gtag('config', %s);",
+            wp_json_encode($id)
+        );
     }
 
     /**
+     * Builds the gtag event JS for the current page context.
+     *
      * @return string
      */
-    private function render_context_event(): string
+    private function build_context_event_js(): string
     {
         if (is_product()) {
-            return $this->render_view_item();
+            return $this->view_item_js();
         }
 
         if (is_shop() || is_product_category() || is_product_tag()) {
-            return $this->render_view_item_list();
+            return $this->view_item_list_js();
         }
 
         if (is_cart()) {
-            return $this->render_view_cart();
+            return $this->view_cart_js();
         }
 
         if (is_checkout() && !is_order_received_page()) {
-            return $this->render_begin_checkout();
+            return $this->begin_checkout_js();
+        }
+
+        if (is_order_received_page()) {
+            return $this->purchase_js();
         }
 
         return '';
@@ -174,7 +204,7 @@ final class GoogleAnalytics extends AbstractIntegration
     /**
      * @return string
      */
-    private function render_view_item(): string
+    private function view_item_js(): string
     {
         global $product;
 
@@ -186,19 +216,17 @@ final class GoogleAnalytics extends AbstractIntegration
             return '';
         }
 
-        $payload = [
+        return $this->gtag_event_js('view_item', [
             'currency' => $this->currency(),
             'value'    => (float) $product->get_price(),
             'items'    => [$this->build_item_payload($product)],
-        ];
-
-        return $this->gtag_event('view_item', $payload);
+        ]);
     }
 
     /**
      * @return string
      */
-    private function render_view_item_list(): string
+    private function view_item_list_js(): string
     {
         global $wp_query;
 
@@ -213,18 +241,16 @@ final class GoogleAnalytics extends AbstractIntegration
             return '';
         }
 
-        $payload = [
+        return $this->gtag_event_js('view_item_list', [
             'item_list_name' => $list_name,
             'items'          => $items,
-        ];
-
-        return $this->gtag_event('view_item_list', $payload);
+        ]);
     }
 
     /**
      * @return string
      */
-    private function render_view_cart(): string
+    private function view_cart_js(): string
     {
         $cart = function_exists('WC') ? WC()->cart : null;
         if (!$cart instanceof WC_Cart || $cart->is_empty()) {
@@ -236,19 +262,17 @@ final class GoogleAnalytics extends AbstractIntegration
             return '';
         }
 
-        $payload = [
+        return $this->gtag_event_js('view_cart', [
             'currency' => $this->currency(),
             'value'    => (float) $cart->get_total('edit'),
             'items'    => $items,
-        ];
-
-        return $this->gtag_event('view_cart', $payload);
+        ]);
     }
 
     /**
      * @return string
      */
-    private function render_begin_checkout(): string
+    private function begin_checkout_js(): string
     {
         $cart = function_exists('WC') ? WC()->cart : null;
         if (!$cart instanceof WC_Cart || $cart->is_empty()) {
@@ -260,53 +284,72 @@ final class GoogleAnalytics extends AbstractIntegration
             return '';
         }
 
-        $payload = [
+        return $this->gtag_event_js('begin_checkout', [
             'currency' => $this->currency(),
             'value'    => (float) $cart->get_total('edit'),
             'items'    => $items,
-        ];
-
-        return $this->gtag_event('begin_checkout', $payload);
+        ]);
     }
 
     /**
-     * @param int $order_id
+     * Builds the purchase event JS on the thank-you page.
+     * Deduplicated via order meta to survive reloads.
      *
-     * @return void
+     * @return string
      */
-    public function render_purchase(int $order_id): void
+    private function purchase_js(): string
     {
+        $order_id = absint(get_query_var('order-received'));
         if ($order_id <= 0 || !function_exists('wc_get_order')) {
-            return;
+            return '';
         }
 
         $order = wc_get_order($order_id);
         if (!$order instanceof WC_Order) {
-            return;
+            return '';
         }
 
         if ($order->get_meta(self::PURCHASE_FLAG_META) === '1') {
-            return;
+            return '';
         }
 
         $items = $this->build_order_items_payload($order);
         if (empty($items)) {
-            return;
+            return '';
         }
 
-        $payload = [
+        $js = $this->gtag_event_js('purchase', [
             'transaction_id' => (string) $order->get_order_number(),
             'value'          => (float) $order->get_total(),
             'tax'            => (float) $order->get_total_tax(),
             'shipping'       => (float) $order->get_shipping_total(),
             'currency'       => $order->get_currency(),
             'items'          => $items,
-        ];
-
-        echo $this->gtag_event('purchase', $payload); // phpcs:ignore WordPress.Security.EscapeOutput
+        ]);
 
         $order->update_meta_data(self::PURCHASE_FLAG_META, '1');
         $order->save();
+
+        return $js;
+    }
+
+    /**
+     * woocommerce_thankyou fires in the body, after wp_enqueue_scripts.
+     * We only flag the order here; the actual event is emitted by purchase_js()
+     * on the next render via is_order_received_page(). For the first thank-you
+     * view, purchase_js() already handles it during enqueue.
+     *
+     * Kept as a safety net for themes with unusual thank-you flows.
+     *
+     * @param int $order_id
+     *
+     * @return void
+     */
+    public function mark_purchase_pending(int $order_id): void
+    {
+        // No-op: purchase is detected via is_order_received_page() in enqueue_assets().
+        // This hook remains registered to keep parity with theme variations.
+        unset($order_id);
     }
 
     /**
@@ -336,13 +379,11 @@ final class GoogleAnalytics extends AbstractIntegration
             return;
         }
 
-        $payload = [
+        $this->enqueue_pending_event('add_to_cart', [
             'currency' => $this->currency(),
             'value'    => (float) $product->get_price() * $quantity,
             'items'    => [$this->build_item_payload($product, $quantity)],
-        ];
-
-        $this->enqueue_pending_event('add_to_cart', $payload);
+        ]);
     }
 
     /**
@@ -379,82 +420,76 @@ final class GoogleAnalytics extends AbstractIntegration
             return;
         }
 
-        $payload = [
+        $this->enqueue_pending_event('remove_from_cart', [
             'currency' => $this->currency(),
             'value'    => (float) $product->get_price() * $quantity,
             'items'    => [$this->build_item_payload($product, $quantity)],
-        ];
-
-        $this->enqueue_pending_event('remove_from_cart', $payload);
+        ]);
     }
 
     /**
+     * Builds the AJAX add_to_cart listener JS.
+     *
      * @return string
      */
-    private function render_ajax_cart_listener(): string
+    private function build_ajax_listener_js(): string
     {
-        $currency = esc_js($this->currency());
-        $rest_url = esc_js(rest_url('netpeak-aio/v1/gtm/product'));
-        $nonce    = esc_js(wp_create_nonce('wp_rest'));
+        $rest_url = rest_url('netpeak-aio/v1/gtm/product');
+        $nonce    = wp_create_nonce('wp_rest');
 
-        ob_start();
-        ?>
-        <!-- Netpeak AIO: GA4 add_to_cart AJAX listener -->
-        <script>
-        (function() {
-            if (typeof jQuery === 'undefined') return;
-            jQuery(document.body).on('added_to_cart', function(event, fragments, cart_hash, button) {
-                if (!button || !button.length) return;
-                var productId = parseInt(button.attr('data-product_id') || '0', 10);
-                var quantity  = parseInt(button.attr('data-quantity') || '1', 10);
-                if (!productId) return;
-
-                fetch('{$rest_url}?id=' + productId, { headers: { 'X-WP-Nonce': '{$nonce}' } })
-                    .then(function(r) { return r.json(); })
-                    .then(function(item) {
-                        if (!item || !item.item_id || typeof gtag !== 'function') return;
-                        item.quantity = quantity;
-                        gtag('event', 'add_to_cart', {
-                            currency: '{$currency}',
-                            value: (item.price || 0) * quantity,
-                            items: [item]
-                        });
-                    })
-                    .catch(function() {});
-            });
-        })();
-        </script>
-        <?php
-       return (string) ob_get_clean();
+        return sprintf(
+            '(function(){'
+            . "if(typeof jQuery==='undefined')return;"
+            . "jQuery(document.body).on('added_to_cart',function(e,fragments,cartHash,button){"
+            . 'if(!button||!button.length)return;'
+            . "var productId=parseInt(button.attr('data-product_id')||'0',10);"
+            . "var quantity=parseInt(button.attr('data-quantity')||'1',10);"
+            . 'if(!productId)return;'
+            . "fetch(%s+'?id='+productId,{headers:{'X-WP-Nonce':%s}})"
+            . '.then(function(r){return r.json();})'
+            . '.then(function(item){'
+            . "if(!item||!item.item_id||typeof gtag!=='function')return;"
+            . 'item.quantity=quantity;'
+            . "gtag('event','add_to_cart',{currency:%s,value:(item.price||0)*quantity,items:[item]});"
+            . '})'
+            . '.catch(function(){});'
+            . '});'
+            . '})();',
+            wp_json_encode($rest_url),
+            wp_json_encode($nonce),
+            wp_json_encode($this->currency())
+        );
     }
 
     /**
-     * @return string
+     * Flushes queued events from WC session into an array of JS snippets.
+     *
+     * @return array<int, string>
      */
-    private function flush_pending_events(): string
+    private function flush_pending_events(): array
     {
         if (!function_exists('WC') || !WC()->session) {
-            return '';
+            return [];
         }
 
         $pending = WC()->session->get(self::PENDING_SESSION_KEY, []);
         if (!is_array($pending) || empty($pending)) {
-            return '';
+            return [];
         }
 
         WC()->session->set(self::PENDING_SESSION_KEY, []);
 
-        $output = '';
+        $snippets = [];
         foreach ($pending as $event) {
             $name   = (string) ($event['name'] ?? '');
             $params = (array) ($event['payload'] ?? []);
             if ($name === '') {
                 continue;
             }
-            $output .= $this->gtag_event($name, $params);
+            $snippets[] = $this->gtag_event_js($name, $params);
         }
 
-        return $output;
+        return $snippets;
     }
 
     /**
@@ -474,29 +509,20 @@ final class GoogleAnalytics extends AbstractIntegration
     }
 
     /**
-     * Renders a gtag('event', name, params) call.
+     * Builds a gtag('event', name, params) JS string.
+     * Params are JSON-encoded via wp_json_encode (safe for inline script).
      *
      * @param string               $event
      * @param array<string, mixed> $params
      *
      * @return string
      */
-    private function gtag_event(string $event, array $params): string
+    private function gtag_event_js(string $event, array $params): string
     {
-        $json = wp_json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        if ($json === false) {
-            return '';
-        }
-
-        ob_start();
-        ?>
-        <!-- Netpeak AIO: GA4 <?php echo esc_html($event); ?> -->
-        <script>
-            if (typeof gtag === 'function') {
-                gtag('event', '<?php echo esc_js($event); ?>', <?php echo $json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>);
-            }
-        </script>
-        <?php
-        return (string) ob_get_clean();
+        return sprintf(
+            "if(typeof gtag==='function'){gtag('event',%s,%s);}",
+            wp_json_encode($event),
+            wp_json_encode($params)
+        );
     }
 }

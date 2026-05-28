@@ -50,5 +50,5 @@ jobs:
         env:
           SVN_USERNAME: ${{ secrets.WORDPRESS_ORG_SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.WORDPRESS_ORG_SVN_PASSWORD }}
-          SLUG: netpeak-aio
+          SLUG: netpeak-analytics-kit
           VERSION: 0.1.0

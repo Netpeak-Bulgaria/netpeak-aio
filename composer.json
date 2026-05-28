@@ -1,5 +1,5 @@
 {
-    "name": "netpeak/netpeak-aio",
+    "name": "netpeak/netpeak-analytics-kit",
     "description": "Connect Google Analytics 4, Tag Manager, Search Console, and Meta Pixel without touching your theme.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",

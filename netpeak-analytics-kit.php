@@ -1,16 +1,15 @@
 <?php
 /**
- * Plugin Name:       Analytics Kit All-in-One by Netpeak Bulgaria
- * Plugin URI:        https://netpeak.bg/services/wordpress-website-development/
+ * Plugin Name:       Netpeak Analytics Kit
  * Description:       All your marketing pixels and analytics in one place. Connect Google Analytics 4, Tag Manager, Search Console, Meta Pixel, without touching your theme.
  * Version:           0.1.0
  * Requires at least: 6.7
  * Requires PHP:      8.2
  * Author:            Netpeak Bulgaria
- * Author URI:        https://netpeak.bg/services/wordpress-website-development/
+ * Author URI:        https://profiles.wordpress.org/netpeakbulgaria/
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       netpeak-aio
+ * Text Domain:       netpeak-analytics-kit
  * Domain Path:       /languages
  */
 

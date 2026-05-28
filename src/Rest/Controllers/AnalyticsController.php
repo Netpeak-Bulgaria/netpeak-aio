@@ -105,7 +105,9 @@ final class AnalyticsController extends AbstractController
                 'days'     => $days,
             ], 200);
         } catch (Throwable $e) {
-            return new WP_REST_Response(['error' => $e->getMessage()], 500);
+            return new WP_REST_Response([
+                'error' => esc_html__('Failed to load GA4 summary. Please reconnect your Google account or try again later.', 'netpeak-analytics-kit'),
+            ], 500);
         }
     }
 
@@ -134,7 +136,9 @@ final class AnalyticsController extends AbstractController
 
             return new WP_REST_Response($data, 200);
         } catch (Throwable $e) {
-            return new WP_REST_Response(['error' => $e->getMessage()], 500);
+            return new WP_REST_Response([
+                'error' => esc_html__('Failed to load GA4 timeseries data. Please reconnect your Google account or try again later.', 'netpeak-analytics-kit'),
+            ], 500);
         }
     }
 
@@ -161,7 +165,9 @@ final class AnalyticsController extends AbstractController
 
             return new WP_REST_Response($data, 200);
         } catch (Throwable $e) {
-            return new WP_REST_Response(['error' => $e->getMessage()], 500);
+            return new WP_REST_Response([
+                'error' => esc_html__('Failed to load GA4 top pages data. Please reconnect your Google account or try again later.', 'netpeak-analytics-kit'),
+            ], 500);
         }
     }
 

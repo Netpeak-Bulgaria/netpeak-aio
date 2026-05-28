@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace Netpeak\Integrations;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -10,27 +11,30 @@ if (!defined('ABSPATH')) {
 /**
  * Meta Pixel (client-side) integration.
  *
- * Renders the fbevents.js loader in <head> and emits event-specific tracking
- * calls based on the current page / request context:
- *
+ * Events emitted:
  *  - PageView         — every non-admin page
- *  - ViewContent      — single product pages (is_product)
- *  - Search           — search results pages (is_search)
- *  - AddToCart        — on `woocommerce_add_to_cart` hook (stores event for next render)
- *  - InitiateCheckout — checkout page (is_checkout)
- *  - Purchase         — thank-you page (is_wc_endpoint_url('order-received'))
+ *  - ViewContent      — single product pages
+ *  - Search           — search results pages
+ *  - AddToCart        — on woocommerce_add_to_cart (queued in WC session)
+ *  - InitiateCheckout — checkout page
+ *  - Purchase         — thank-you page
  *
- * Each event is fired with a unique event_id so that when CAPI sends the same
- * event server-side, Meta will deduplicate by (event_name, event_id).
+ * Each event carries a unique event_id so CAPI can deduplicate by
+ * (event_name, event_id).
  *
  * @since 0.1.0
  */
 final class MetaPixel extends AbstractIntegration
 {
     /**
-     * Transient key template for deferred events (e.g. AddToCart fired during redirect).
+     * Anchor handle for the inline Pixel loader and events.
      */
-    private const DEFERRED_TRANSIENT_PREFIX = 'ntp_aio_meta_pixel_deferred_';
+    private const SCRIPT_HANDLE = 'ntp-aio-meta-pixel';
+
+    /**
+     * WC session key for events queued during a previous request.
+     */
+    private const PENDING_SESSION_KEY = 'ntp_aio_meta_pending_events';
 
     /**
      * @return string
@@ -51,8 +55,6 @@ final class MetaPixel extends AbstractIntegration
     }
 
     /**
-     * Registers WooCommerce action hooks that capture events unrelated to page rendering.
-     *
      * @return void
      */
     public function register(): void
@@ -61,50 +63,40 @@ final class MetaPixel extends AbstractIntegration
             return;
         }
 
-        // AddToCart fires during a POST that usually redirects — we defer it
-        // into a per-session transient and flush it on the next page render.
-        add_action('woocommerce_add_to_cart', [$this, 'capture_add_to_cart'], 10, 6);
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_assets']);
+        add_action('woocommerce_add_to_cart', [$this, 'capture_add_to_cart'], 10, 4);
     }
 
     /**
-     * Base loader + PageView (fires on every page).
+     * Enqueues the Pixel loader and attaches all inline scripts:
+     * loader IIFE, init, PageView, queued + contextual events.
      *
-     * @return string
+     * @return void
      */
-    public function render_head(): string
+    public function enqueue_assets(): void
     {
-        if (!$this->is_enabled() || !$this->is_configured() || is_admin()) {
-            return '';
+        if (is_admin()) {
+            return;
         }
 
-        $pixel_id      = (string) $this->settings->get('meta.pixel_id', '');
-        $events        = $this->build_events_for_current_request();
-        $events_js     = $this->render_events_js($events);
-        $view_event_id = $this->event_id_for('PageView');
+        $pixel_id = (string) $this->settings->get('meta.pixel_id', '');
 
-        ob_start();
-        ?>
-        <!-- Meta Pixel (Analytics Netpeak AIO) -->
-        <script>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '<?php echo esc_js($pixel_id); ?>');
-        fbq('track', 'PageView', {}, { eventID: '<?php echo esc_js($view_event_id); ?>' });
-        <?php echo $events_js; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-        </script>
-        <!-- End Meta Pixel -->
-        <?php
-        return (string) ob_get_clean();
+        wp_register_script(self::SCRIPT_HANDLE, '', [], null, false);
+        wp_enqueue_script(self::SCRIPT_HANDLE);
+
+        // Loader IIFE + init + base PageView.
+        wp_add_inline_script(self::SCRIPT_HANDLE, $this->build_loader_js($pixel_id), 'after');
+
+        // Queued events (e.g. AddToCart from a previous request) + page-contextual.
+        $events = $this->build_events_for_current_request();
+        $events_js = $this->build_events_js($events);
+        if ($events_js !== '') {
+            wp_add_inline_script(self::SCRIPT_HANDLE, $events_js, 'after');
+        }
     }
 
     /**
-     * <noscript> fallback for Pixel (covers only PageView; CAPI handles the rest).
+     * <noscript> fallback for Pixel (PageView only). Cannot be enqueued.
      *
      * @return string
      */
@@ -115,25 +107,47 @@ final class MetaPixel extends AbstractIntegration
         }
 
         $pixel_id = (string) $this->settings->get('meta.pixel_id', '');
+        $src      = 'https://www.facebook.com/tr?id=' . rawurlencode($pixel_id) . '&ev=PageView&noscript=1';
 
-        ob_start();
-        ?>
-        <noscript><img height="1" width="1" style="display:none"
-        src="https://www.facebook.com/tr?id=<?php echo esc_attr($pixel_id); ?>&ev=PageView&noscript=1" alt=""
-        /></noscript>
-        <?php
-        return (string) ob_get_clean();
+        return sprintf(
+            '<noscript><img height="1" width="1" style="display:none" src="%s" alt="" /></noscript>',
+            esc_url($src)
+        );
     }
+
     /**
-     * Captures AddToCart into a short-lived transient keyed by session id.
-     * The next page render will include the corresponding fbq('track', ...) call.
+     * @param string $pixel_id
      *
+     * @return string
+     */
+    private function build_loader_js(string $pixel_id): string
+    {
+        $view_event_id = $this->event_id_for('PageView');
+
+        return sprintf(
+            '!function(f,b,e,v,n,t,s)'
+            . '{if(f.fbq)return;n=f.fbq=function(){n.callMethod?'
+            . 'n.callMethod.apply(n,arguments):n.queue.push(arguments)};'
+            . "if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';"
+            . 'n.queue=[];t=b.createElement(e);t.async=!0;'
+            . 't.src=v;s=b.getElementsByTagName(e)[0];'
+            . "s.parentNode.insertBefore(t,s)}(window,document,'script',"
+            . "'https://connect.facebook.net/en_US/fbevents.js');"
+            . 'fbq(%s,%s);'
+            . 'fbq(%s,%s,{},{eventID:%s});',
+            wp_json_encode('init'),
+            wp_json_encode($pixel_id),
+            wp_json_encode('track'),
+            wp_json_encode('PageView'),
+            wp_json_encode($view_event_id)
+        );
+    }
+
+    /**
      * @param string $cart_item_key
      * @param int    $product_id
      * @param int    $quantity
      * @param int    $variation_id
-     * @param array  $variation
-     * @param array  $cart_item_data
      *
      * @return void
      */
@@ -141,17 +155,17 @@ final class MetaPixel extends AbstractIntegration
         string $cart_item_key,
         int $product_id,
         int $quantity,
-        int $variation_id,
-        array $variation,
-        array $cart_item_data
+        int $variation_id
     ): void {
-        $session_key = $this->session_key();
-        if ($session_key === '') {
+        /** @noinspection PhpUnusedParameterInspection */
+        unset($cart_item_key);
+
+        if (!function_exists('WC') || !WC()->session || !function_exists('wc_get_product')) {
             return;
         }
 
         $effective_id = $variation_id ?: $product_id;
-        $product      = function_exists('wc_get_product') ? wc_get_product($effective_id) : null;
+        $product      = wc_get_product($effective_id);
         if (!$product) {
             return;
         }
@@ -172,33 +186,47 @@ final class MetaPixel extends AbstractIntegration
                 ]],
             ],
         ];
-        \set_transient(self::DEFERRED_TRANSIENT_PREFIX . $session_key, [$event], 5 * MINUTE_IN_SECONDS);
+
+        $pending   = $this->read_pending_events();
+        $pending[] = $event;
+        WC()->session->set(self::PENDING_SESSION_KEY, $pending);
     }
 
     /**
-     * Builds the list of fbq('track', ...) events to emit on the current render.
-     *
+     * @return array<int, array{name:string, event_id:string, params:array<string,mixed>}>
+     */
+    private function read_pending_events(): array
+    {
+        if (!function_exists('WC') || !WC()->session) {
+            return [];
+        }
+
+        $pending = WC()->session->get(self::PENDING_SESSION_KEY, []);
+
+        return is_array($pending) ? $pending : [];
+    }
+
+    /**
      * @return array<int, array{name:string, event_id:string, params:array<string,mixed>}>
      */
     private function build_events_for_current_request(): array
     {
         $events = [];
 
-        // Deferred events (e.g. AddToCart from a prior request)
-        $session_key = $this->session_key();
-        if ($session_key !== '') {
-            $deferred = get_transient(self::DEFERRED_TRANSIENT_PREFIX . $session_key);
-            if (is_array($deferred) && !empty($deferred)) {
-                foreach ($deferred as $e) {
-                    if (is_array($e) && isset($e['name'], $e['event_id'], $e['params'])) {
-                        $events[] = $e;
-                    }
+        // Flush queued events from a previous request (AddToCart).
+        $pending = $this->read_pending_events();
+        if (!empty($pending)) {
+            foreach ($pending as $e) {
+                if (is_array($e) && isset($e['name'], $e['event_id'], $e['params'])) {
+                    $events[] = $e;
                 }
-                delete_transient(self::DEFERRED_TRANSIENT_PREFIX . $session_key);
+            }
+            if (function_exists('WC') && WC()->session) {
+                WC()->session->set(self::PENDING_SESSION_KEY, []);
             }
         }
 
-        // Page-contextual events
+        // Page-contextual events.
         if (function_exists('is_product') && is_product()) {
             $e = $this->build_view_content_event();
             if ($e !== null) {
@@ -315,7 +343,7 @@ final class MetaPixel extends AbstractIntegration
 
         return [
             'name'     => 'InitiateCheckout',
-            'event_id' => $this->event_id_for('InitiateCheckout', $this->session_key()),
+            'event_id' => $this->event_id_for('InitiateCheckout', (string) WC()->session->get_customer_id()),
             'params'   => [
                 'content_ids'  => $ids,
                 'content_type' => 'product',
@@ -382,11 +410,14 @@ final class MetaPixel extends AbstractIntegration
     }
 
     /**
+     * Builds the fbq('track', ...) JS for all events.
+     * Params are JSON-encoded via wp_json_encode (safe for inline script).
+     *
      * @param array<int, array{name:string, event_id:string, params:array<string,mixed>}> $events
      *
      * @return string
      */
-    private function render_events_js(array $events): string
+    private function build_events_js(array $events): string
     {
         if (empty($events)) {
             return '';
@@ -394,23 +425,19 @@ final class MetaPixel extends AbstractIntegration
 
         $lines = [];
         foreach ($events as $e) {
-            $name     = esc_js($e['name']);
-            $event_id = esc_js($e['event_id']);
-            $params   = wp_json_encode($e['params']);
-            if (!is_string($params)) {
-                $params = '{}';
-            }
-            $lines[] = "fbq('track', '{$name}', {$params}, { eventID: '{$event_id}' });";
+            $lines[] = sprintf(
+                'fbq(%s,%s,%s,{eventID:%s});',
+                wp_json_encode('track'),
+                wp_json_encode($e['name']),
+                wp_json_encode($e['params']),
+                wp_json_encode($e['event_id'])
+            );
         }
 
-        return implode("\n        ", $lines);
+        return implode('', $lines);
     }
 
     /**
-     * Generates a deterministic event_id for a given (event_name, scope) pair
-     * within a single page load. Deterministic hashing ensures Pixel and CAPI
-     * arrive at the same event_id when they independently process the same event.
-     *
      * @param string $event_name
      * @param string $scope
      *
@@ -418,16 +445,12 @@ final class MetaPixel extends AbstractIntegration
      */
     private function event_id_for(string $event_name, string $scope = ''): string
     {
-        // Per-request seed ensures PageView on two tabs produces different ids.
         $seed = $this->request_seed();
 
         return substr(hash('sha256', $event_name . '|' . $scope . '|' . $seed), 0, 32);
     }
 
     /**
-     * Stable seed per-request so that multiple event_id() calls within the same
-     * render return consistent values.
-     *
      * @return string
      */
     private function request_seed(): string
@@ -437,32 +460,6 @@ final class MetaPixel extends AbstractIntegration
             $seed = bin2hex(random_bytes(16));
         }
         return $seed;
-    }
-
-    /**
-     * Returns a session-ish identifier for per-visitor transient keys.
-     * Uses WC session customer id when available, falls back to _fbp cookie.
-     *
-     * @return string
-     */
-    private function session_key(): string
-    {
-        if (function_exists('WC') && WC()->session) {
-            $id = (string) WC()->session->get_customer_id();
-            if ($id !== '') {
-                return 'wc_' . $id;
-            }
-        }
-
-        $fbp = isset($_COOKIE['_fbp'])
-            ? sanitize_text_field(wp_unslash($_COOKIE['_fbp']))
-            : '';
-
-        if ($fbp !== '') {
-            return 'fbp_' . substr(preg_replace('/[^a-zA-Z0-9.]/', '', $fbp), 0, 40);
-        }
-
-        return '';
     }
 
     /**
