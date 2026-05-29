@@ -6,7 +6,7 @@
 #   ./build.sh
 #
 # Produces:
-#   ./dist/netpeak-aio.zip
+#   ./dist/netpeak-analytics-kit.zip
 #
 # Requirements: bash, zip, rsync, composer (macOS has these or via brew).
 #
@@ -23,11 +23,13 @@ STAGING_DIR="${BUILD_DIR}/${PLUGIN_SLUG}"
 ZIP_FILE="${BUILD_DIR}/${PLUGIN_SLUG}.zip"
 
 # Files / folders to exclude from the package.
+# Note: composer.json is INCLUDED (wp.org reviewers require it for transparency).
 EXCLUDES=(
     ".git"
     ".github"
     ".gitignore"
     ".gitattributes"
+    ".asset-backups"
     ".gitkeep"
     ".editorconfig"
     ".distignore"
@@ -40,7 +42,6 @@ EXCLUDES=(
     "tests"
     "docs"
     "vendor/bin"
-    "composer.json"
     "composer.lock"
     "package.json"
     "package-lock.json"
@@ -50,6 +51,7 @@ EXCLUDES=(
     "phpunit.xml.dist"
     "phpstan.neon"
     "build.sh"
+    "assets.sh"
     "README.md"
     "CHANGELOG.md"
     "CONTRIBUTING.md"
@@ -75,8 +77,8 @@ error() { echo -e "${RED}✗${NC}  $1" >&2; }
 # Pre-flight checks
 # ----------------------------------------------------------------------------
 
-if [[ ! -f "${PLUGIN_SLUG}.php" ]]; then
-    error "Main plugin file '${PLUGIN_SLUG}.php' not found. Run this from the plugin root."
+if [[ ! -f "netpeak-analytics-kit.php" ]]; then
+    error "Main plugin file 'netpeak-analytics-kit.php' not found. Run this from the plugin root."
     exit 1
 fi
 
@@ -96,7 +98,7 @@ rm -rf "${BUILD_DIR}"
 mkdir -p "${STAGING_DIR}"
 
 # ----------------------------------------------------------------------------
-# Install production Composer dependencies into a temp vendor
+# Install production Composer dependencies
 # ----------------------------------------------------------------------------
 
 info "Installing production Composer dependencies..."
@@ -117,6 +119,15 @@ done
 
 info "Copying plugin files to staging..."
 rsync -a "${RSYNC_EXCLUDES[@]}" ./ "${STAGING_DIR}/"
+
+# ----------------------------------------------------------------------------
+# Strip composer temporary files (composer occasionally leaves tmp-*.zip~)
+# ----------------------------------------------------------------------------
+
+info "Stripping Composer temp files..."
+find "${STAGING_DIR}/vendor" -name "tmp-*" -delete 2>/dev/null || true
+find "${STAGING_DIR}/vendor" -name "*.zip~" -delete 2>/dev/null || true
+find "${STAGING_DIR}/vendor" -name "*~" -delete 2>/dev/null || true
 
 # ----------------------------------------------------------------------------
 # Remove macOS metadata files anywhere in the tree (._* and .DS_Store)
@@ -153,4 +164,7 @@ echo "    Size: ${ZIP_SIZE}"
 echo ""
 warn "Verify contents before submitting:"
 echo "    unzip -l ${ZIP_FILE}"
+echo ""
+warn "Make sure composer.json IS inside the archive:"
+echo "    unzip -l ${ZIP_FILE} | grep composer.json"
 echo ""

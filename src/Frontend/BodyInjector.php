@@ -43,9 +43,8 @@ final class BodyInjector
     {
         foreach ($this->injectors as $injector) {
             // Each integration is responsible for escaping its own output.
-            // The HTML here contains intentional <script>/<iframe> tags from
             // Meta Pixel, GTM and similar — escaping would break functionality.
-            $html = (string) apply_filters('google_aio_body_html', $injector->render_body(), $injector);
+            $html = (string) apply_filters('netpeak_aio_body_html', $injector->render_body(), $injector);
             if ($html !== '') {
                 echo $html . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             }
