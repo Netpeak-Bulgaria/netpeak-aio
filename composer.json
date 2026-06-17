@@ -22,9 +22,9 @@
         "sort-packages": true
     },
     "scripts": {
-      "lint": "phpcs --standard=phpcs.xml",
-      "lint:fix": "phpcbf --standard=phpcs.xml",
-      "build": "composer install --no-dev --classmap-authoritative --optimize-autoloader",
-      "build:dev": "composer install"
-  }
+        "lint": "phpcs --standard=./phpcs.xml",
+        "lint:fix": "phpcbf --standard=./phpcs.xml",
+        "build": "composer install --no-dev --classmap-authoritative --optimize-autoloader",
+        "build:dev": "composer install"
+    }
 }
