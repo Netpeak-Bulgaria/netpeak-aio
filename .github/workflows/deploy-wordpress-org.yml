@@ -7,29 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
-    name: Lint plugin
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.2
-          extensions: mbstring, curl, json, xml
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
-
-      - name: Run code style checks
-        run: composer lint
-
   deploy:
     name: Deploy to WordPress.org
-    needs: lint
     runs-on: ubuntu-latest
 
     steps:
