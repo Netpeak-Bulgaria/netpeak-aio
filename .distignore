@@ -6,6 +6,10 @@
 /.editorconfig
 /.distignore
 /.wp-env.json
+/.asset-backups
+/dist
+/build.sh
+/update-assets.sh
 
 
 /tests
