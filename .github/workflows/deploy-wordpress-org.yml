@@ -42,9 +42,17 @@ jobs:
           find vendor -name "*.zip~" -delete 2>/dev/null || true
           find vendor -name "*~" -delete 2>/dev/null || true
 
+      - name: Extract plugin version
+        id: plugin_version
+        run: |
+          VERSION=$(grep -m1 "define('NTP_AIO_VERSION'" netpeak-analytics-kit.php | sed "s/.*define('NTP_AIO_VERSION', '\([^']*\)').*/\1/")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Deploying version: $VERSION"
+
       - name: Deploy to WordPress.org plugin repository
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
           SVN_USERNAME: ${{ secrets.WORDPRESS_ORG_SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.WORDPRESS_ORG_SVN_PASSWORD }}
           SLUG: netpeak-analytics-kit
+          VERSION: ${{ steps.plugin_version.outputs.version }}
