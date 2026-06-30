@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Netpeak Analytics Kit
  * Description:       All your marketing pixels and analytics in one place. Connect Google Analytics 4, Tag Manager, Search Console, Meta Pixel, without touching your theme.
- * Version:           0.1.0
+ * Version:           0.1.1
  * Requires at least: 6.7
  * Requires PHP:      8.2
  * Author:            Netpeak Bulgaria
@@ -38,7 +38,7 @@ if (defined('NTP_AIO_VERSION')) {
  */
 
 
-define('NTP_AIO_VERSION', '0.1.0');
+define('NTP_AIO_VERSION', '0.1.1');
 define('NTP_AIO_FILE', __FILE__);
 define('NTP_AIO_DIR', plugin_dir_path(__FILE__));
 define('NTP_AIO_URL', plugin_dir_url(__FILE__));

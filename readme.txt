@@ -1,5 +1,5 @@
 === Netpeak Analytics Kit ===
-Contributors: netpeakbulgaria, masiknetpeak
+Contributors: netpeakbulgaria, masiknetpeak, finik2024
 Tags: analytics, google analytics, google tag manager, search console, meta pixel
 Requires at least: 6.7
 Tested up to: 7.0
@@ -109,3 +109,7 @@ Not in version 0.1.0. Meta Conversions API support is planned for a future relea
 = 0.1.0 =
 
 Initial release.
+
+= 0.1.1 =
+
+UI polish

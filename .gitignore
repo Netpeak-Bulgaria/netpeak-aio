@@ -7,3 +7,5 @@ dist/
 *.zip
 *.tmp
 .asset-backups/
+*.md
+.vendor/

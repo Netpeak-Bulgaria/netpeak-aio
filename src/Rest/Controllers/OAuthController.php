@@ -74,6 +74,16 @@ final class OAuthController extends AbstractController
      */
     public function callback(WP_REST_Request $request): WP_REST_Response
     {
+        // Route is intentionally public (Google redirect won't carry a WP nonce),
+        // but token storage must be gated to administrators only.
+        if (!current_user_can('manage_options')) {
+            wp_die(
+                esc_html__('You do not have permission to complete this action.', 'netpeak-analytics-kit'),
+                esc_html__('Forbidden', 'netpeak-analytics-kit'),
+                ['response' => 403]
+            );
+        }
+
         $code  = (string) $request->get_param('code');
         $state = (string) $request->get_param('state');
 
