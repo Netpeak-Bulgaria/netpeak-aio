@@ -42,14 +42,9 @@ jobs:
           find vendor -name "*.zip~" -delete 2>/dev/null || true
           find vendor -name "*~" -delete 2>/dev/null || true
 
-      - name: Extract version from tag
-        id: strip_v
-        run: echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
-
       - name: Deploy to WordPress.org plugin repository
         uses: 10up/action-wordpress-plugin-deploy@stable
         env:
           SVN_USERNAME: ${{ secrets.WORDPRESS_ORG_SVN_USERNAME }}
           SVN_PASSWORD: ${{ secrets.WORDPRESS_ORG_SVN_PASSWORD }}
           SLUG: netpeak-analytics-kit
-          VERSION: ${{ steps.strip_v.outputs.version }}
