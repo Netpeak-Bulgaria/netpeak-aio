@@ -21,6 +21,18 @@ jobs:
           php-version: 8.2
           extensions: mbstring, curl, json, xml
 
+      - name: Check version consistency
+        run: |
+          HEADER_VERSION=$(grep -m1 '^\s*\*\s*Version:' netpeak-analytics-kit.php | sed 's/.*Version:[[:space:]]*//' | tr -d ' \r')
+          DEFINE_VERSION=$(grep "define('NTP_AIO_VERSION'" netpeak-analytics-kit.php | sed "s/.*define('NTP_AIO_VERSION', '\([^']*\)').*/\1/")
+          echo "Plugin header version : $HEADER_VERSION"
+          echo "NTP_AIO_VERSION define: $DEFINE_VERSION"
+          if [ "$HEADER_VERSION" != "$DEFINE_VERSION" ]; then
+            echo "::error file=netpeak-analytics-kit.php::Version mismatch: header says '$HEADER_VERSION' but NTP_AIO_VERSION is '$DEFINE_VERSION'. Update both to the same value."
+            exit 1
+          fi
+          echo "OK — versions match: $HEADER_VERSION"
+
       - name: Install production dependencies
         run: composer install --no-dev --prefer-dist --no-progress --classmap-authoritative --optimize-autoloader
 
