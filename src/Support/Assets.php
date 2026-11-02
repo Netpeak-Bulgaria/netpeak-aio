@@ -20,8 +20,8 @@ final class Assets
     private const HANDLE_CHART  = 'netpeak-aio-chart';
     private const HANDLE_ADMIN  = 'netpeak-aio-admin';
 
-    private const ALPINE_VER = '3.14.1';
-    private const CHART_VER  = '4.4.4';
+    private const ALPINE_VER = '3.17.5';
+    private const CHART_VER  = '4.6.1';
 
     /**
      * Admin JS modules. Each loads after the main app handle.

@@ -11,6 +11,7 @@
 /dist
 /build.sh
 /update-assets.sh
+/assets.sh
 
 
 /tests
