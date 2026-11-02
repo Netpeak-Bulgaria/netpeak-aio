@@ -471,6 +471,22 @@ $callback_url = rest_url('netpeak-aio/v1/oauth/callback');
                     </div>
                 </section>
 
+                <section x-show="activeTab === 'general'">
+                    <h2 class="netpeak-analytics-kit__section-title"><?php esc_html_e('Data', 'netpeak-analytics-kit'); ?></h2>
+                    <p class="netpeak-analytics-kit__lede">
+                        <?php esc_html_e('What happens to the plugin data when the plugin is deleted from the Plugins screen.', 'netpeak-analytics-kit'); ?>
+                    </p>
+
+                    <div class="netpeak-analytics-kit__checkbox-row">
+                        <input type="checkbox" id="general-delete-data" x-model="settings.data.general.delete_data_on_uninstall">
+                        <label for="general-delete-data"><?php esc_html_e('Delete all plugin data when the plugin is deleted', 'netpeak-analytics-kit'); ?></label>
+                    </div>
+
+                    <p class="netpeak-analytics-kit__hint">
+                        <?php esc_html_e('Removes settings, Google OAuth tokens, the cached reports and the order flags used to avoid duplicate purchase events. Off by default: deleting and reinstalling the plugin keeps your configuration.', 'netpeak-analytics-kit'); ?>
+                    </p>
+                </section>
+
                 <div class="netpeak-analytics-kit__actions">
                     <button type="button" class="button button-primary"
                             @click="save()"

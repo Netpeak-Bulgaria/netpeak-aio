@@ -50,6 +50,10 @@ final class Defaults
                     'test_code' => '',
                 ],
             ],
+            'general' => [
+                // Read by uninstall.php straight from the option. Default is to keep the data.
+                'delete_data_on_uninstall' => false,
+            ],
         ];
     }
 }

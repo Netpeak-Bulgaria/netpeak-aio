@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 use Netpeak\Admin\AdminMenu;
+use Netpeak\Admin\DeactivationFeedback;
 use Netpeak\Api\OAuth\GoogleOAuthClient;
 use Netpeak\Api\OAuth\TokenRefresher;
 use Netpeak\Api\OAuth\TokenStorage as GoogleTokenStorage;
@@ -241,6 +242,8 @@ final class Plugin
             /** @var Assets $assets */
             $assets = $this->container->get(Assets::class);
             $assets->register();
+
+            (new DeactivationFeedback($this->container->get(SettingsRepository::class)))->register();
         }
     }
 }

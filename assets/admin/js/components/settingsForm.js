@@ -24,6 +24,12 @@ document.addEventListener('alpine:init', () => {
                     { key: 'oauth', label: 'OAuth' },
                 ],
             },
+            {
+                label: 'General',
+                tabs: [
+                    { key: 'general', label: 'Data' },
+                ],
+            },
         ],
 
         get settings() {

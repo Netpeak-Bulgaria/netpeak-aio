@@ -56,6 +56,9 @@ final class SettingsSchema
                     'test_code' => self::sanitize_meta_test_code($input['meta']['capi']['test_code'] ?? ''),
                 ],
             ],
+            'general' => [
+                'delete_data_on_uninstall' => !empty($input['general']['delete_data_on_uninstall']),
+            ],
         ];
     }
 
