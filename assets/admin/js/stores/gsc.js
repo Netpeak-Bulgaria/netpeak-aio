@@ -9,12 +9,12 @@ document.addEventListener('alpine:init', () => {
         error: null,
         days: 28,
 
-        async loadSummary(days = 28) {
+        async loadSummary(days = 28, refresh = false) {
             this.loading = true;
             this.error = null;
             this.days = days;
             try {
-                const response = await window.NetpeakAIO.request(`gsc/summary?days=${days}`);
+                const response = await window.NetpeakAIO.request(`gsc/summary?days=${days}${refresh ? '&refresh=1' : ''}`);
                 this.current = response.current || null;
                 this.previous = response.previous || null;
             } catch (e) {
@@ -24,12 +24,12 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        async loadTop(dimension = 'query', limit = 25, days = 28) {
+        async loadTop(dimension = 'query', limit = 25, days = 28, refresh = false) {
             this.topLoading = true;
             this.topDimension = dimension;
             try {
                 this.top = await window.NetpeakAIO.request(
-                    `gsc/top?dimension=${dimension}&limit=${limit}&days=${days}`
+                    `gsc/top?dimension=${dimension}&limit=${limit}&days=${days}${refresh ? '&refresh=1' : ''}`
                 );
             } catch (e) {
                 this.error = e.message;

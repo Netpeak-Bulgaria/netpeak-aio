@@ -8,6 +8,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use Netpeak\Support\EventFilter;
+use WC_Product;
+
 /**
  * Meta Pixel (client-side) integration.
  *
@@ -35,6 +38,16 @@ final class MetaPixel extends AbstractIntegration
      * WC session key for events queued during a previous request.
      */
     private const PENDING_SESSION_KEY = 'ntp_aio_meta_pending_events';
+
+    /**
+     * Order meta flag: the browser Purchase event was already emitted, so a reload of the thank-you page does not repeat it.
+     */
+    private const PURCHASE_FLAG_META = '_ntp_aio_meta_purchase_tracked';
+
+    /**
+     * Channel name used by the public filters (see EventFilter).
+     */
+    private const CHANNEL = 'meta';
 
     /**
      * @return string
@@ -106,6 +119,10 @@ final class MetaPixel extends AbstractIntegration
             return '';
         }
 
+        if (!EventFilter::is_enabled(self::CHANNEL, 'PageView')) {
+            return '';
+        }
+
         $pixel_id = (string) $this->settings->get('meta.pixel_id', '');
         $src      = 'https://www.facebook.com/tr?id=' . rawurlencode($pixel_id) . '&ev=PageView&noscript=1';
 
@@ -123,8 +140,9 @@ final class MetaPixel extends AbstractIntegration
     private function build_loader_js(string $pixel_id): string
     {
         $view_event_id = $this->event_id_for('PageView');
+        $view_params   = EventFilter::apply(self::CHANNEL, 'PageView', []);
 
-        return sprintf(
+        $js = sprintf(
             '!function(f,b,e,v,n,t,s)'
             . '{if(f.fbq)return;n=f.fbq=function(){n.callMethod?'
             . 'n.callMethod.apply(n,arguments):n.queue.push(arguments)};'
@@ -133,12 +151,20 @@ final class MetaPixel extends AbstractIntegration
             . 't.src=v;s=b.getElementsByTagName(e)[0];'
             . "s.parentNode.insertBefore(t,s)}(window,document,'script',"
             . "'https://connect.facebook.net/en_US/fbevents.js');"
-            . 'fbq(%s,%s);'
-            . 'fbq(%s,%s,{},{eventID:%s});',
+            . 'fbq(%s,%s);',
             wp_json_encode('init'),
-            wp_json_encode($pixel_id),
+            wp_json_encode($pixel_id)
+        );
+
+        if ($view_params === null) {
+            return $js;
+        }
+
+        return $js . sprintf(
+            'fbq(%s,%s,%s,{eventID:%s});',
             wp_json_encode('track'),
             wp_json_encode('PageView'),
+            wp_json_encode($view_params === [] ? new \stdClass() : $view_params),
             wp_json_encode($view_event_id)
         );
     }
@@ -170,17 +196,19 @@ final class MetaPixel extends AbstractIntegration
             return;
         }
 
+        $content_id = $this->content_id($product, $effective_id);
+
         $event = [
             'name'     => 'AddToCart',
             'event_id' => $this->event_id_for('AddToCart', (string) $effective_id),
             'params'   => [
-                'content_ids'  => [(string) $effective_id],
+                'content_ids'  => [$content_id],
                 'content_type' => 'product',
                 'content_name' => $product->get_name(),
                 'value'        => (float) $product->get_price() * $quantity,
                 'currency'     => function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'EUR',
                 'contents'     => [[
-                    'id'         => (string) $effective_id,
+                    'id'         => $content_id,
                     'quantity'   => $quantity,
                     'item_price' => (float) $product->get_price(),
                 ]],
@@ -218,7 +246,10 @@ final class MetaPixel extends AbstractIntegration
         if (!empty($pending)) {
             foreach ($pending as $e) {
                 if (is_array($e) && isset($e['name'], $e['event_id'], $e['params'])) {
-                    $events[] = $e;
+                    $e = $this->finalize_event($e);
+                    if ($e !== null) {
+                        $events[] = $e;
+                    }
                 }
             }
             if (function_exists('WC') && WC()->session) {
@@ -227,18 +258,18 @@ final class MetaPixel extends AbstractIntegration
         }
 
         // Page-contextual events.
+        $context = null;
         if (function_exists('is_product') && is_product()) {
-            $e = $this->build_view_content_event();
-            if ($e !== null) {
-                $events[] = $e;
-            }
+            $context = $this->build_view_content_event();
         } elseif (function_exists('is_search') && is_search()) {
-            $events[] = $this->build_search_event();
+            $context = $this->build_search_event();
         } elseif (function_exists('is_checkout') && is_checkout() && !$this->is_thank_you_page()) {
-            $e = $this->build_initiate_checkout_event();
-            if ($e !== null) {
-                $events[] = $e;
-            }
+            $context = $this->build_initiate_checkout_event();
+        }
+
+        $context = $context !== null ? $this->finalize_event($context) : null;
+        if ($context !== null) {
+            $events[] = $context;
         }
 
         if ($this->is_thank_you_page()) {
@@ -278,7 +309,7 @@ final class MetaPixel extends AbstractIntegration
             'name'     => 'ViewContent',
             'event_id' => $this->event_id_for('ViewContent', (string) $product_id),
             'params'   => [
-                'content_ids'      => [(string) $product_id],
+                'content_ids'      => [$this->content_id($product, $product_id)],
                 'content_type'     => 'product',
                 'content_name'     => $product->get_name(),
                 'content_category' => $category,
@@ -329,9 +360,10 @@ final class MetaPixel extends AbstractIntegration
             if (!$product) {
                 continue;
             }
-            $ids[]      = (string) $pid;
+            $content_id = $this->content_id($product, $pid);
+            $ids[]      = $content_id;
             $contents[] = [
-                'id'         => (string) $pid,
+                'id'         => $content_id,
                 'quantity'   => (int) $cart_item['quantity'],
                 'item_price' => (float) $product->get_price(),
             ];
@@ -371,6 +403,10 @@ final class MetaPixel extends AbstractIntegration
             return null;
         }
 
+        if ($order->get_meta(self::PURCHASE_FLAG_META) === '1') {
+            return null;
+        }
+
         $ids      = [];
         $contents = [];
         foreach ($order->get_items() as $item) {
@@ -378,9 +414,11 @@ final class MetaPixel extends AbstractIntegration
             if ($pid <= 0) {
                 continue;
             }
-            $ids[]      = (string) $pid;
+            $product    = $item->get_product();
+            $content_id = $product instanceof WC_Product ? $this->content_id($product, $pid) : (string) $pid;
+            $ids[]      = $content_id;
             $contents[] = [
-                'id'         => (string) $pid,
+                'id'         => $content_id,
                 'quantity'   => (int) $item->get_quantity(),
                 'item_price' => (float) $order->get_item_total($item, false, false),
             ];
@@ -394,7 +432,7 @@ final class MetaPixel extends AbstractIntegration
             $order->save_meta_data();
         }
 
-        return [
+        $event = $this->finalize_event([
             'name'     => 'Purchase',
             'event_id' => $event_id,
             'params'   => [
@@ -406,7 +444,47 @@ final class MetaPixel extends AbstractIntegration
                 'currency'     => $order->get_currency(),
                 'order_id'     => (string) $order_id,
             ],
-        ];
+        ]);
+
+        // Flag only an event that is really going to the page, not one disabled by a filter.
+        if ($event !== null) {
+            $order->update_meta_data(self::PURCHASE_FLAG_META, '1');
+            $order->save_meta_data();
+        }
+
+        return $event;
+    }
+
+    /**
+     * Applies the public filters (enabled + payload) to one event.
+     *
+     * @param array{name:string, event_id:string, params:array<string,mixed>} $event
+     *
+     * @return array{name:string, event_id:string, params:array<string,mixed>}|null Null when the event is disabled.
+     */
+    private function finalize_event(array $event): ?array
+    {
+        $params = EventFilter::apply(self::CHANNEL, $event['name'], $event['params']);
+        if ($params === null) {
+            return null;
+        }
+
+        $event['params'] = $params;
+
+        return $event;
+    }
+
+    /**
+     * Product ID sent to Meta as content id (WooCommerce ID of the product or variation), changeable via netpeak_aio_item_id.
+     *
+     * @param WC_Product $product
+     * @param int        $id
+     *
+     * @return string
+     */
+    private function content_id(WC_Product $product, int $id): string
+    {
+        return EventFilter::item_id((string) $id, $product, self::CHANNEL);
     }
 
     /**

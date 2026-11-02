@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
 }
 
 use Netpeak\Integrations\Traits\WooCommerceEcommerceTrait;
+use Netpeak\Support\EventFilter;
 use WC_Cart;
 use WC_Order;
 use WC_Product;
@@ -117,7 +118,9 @@ final class TagManager extends AbstractIntegration
 
         // Queued events from a previous request (add_to_cart, remove_from_cart).
         foreach ($this->flush_pending_events() as $js) {
-            wp_add_inline_script(self::SCRIPT_HANDLE, $js, 'after');
+            if ($js !== '') {
+                wp_add_inline_script(self::SCRIPT_HANDLE, $js, 'after');
+            }
         }
 
         // Page-contextual event for the current request.
@@ -127,7 +130,10 @@ final class TagManager extends AbstractIntegration
         }
 
         // AJAX add_to_cart listener.
-        wp_add_inline_script(self::SCRIPT_HANDLE, $this->build_ajax_listener_js(), 'after');
+        $listener_js = $this->build_ajax_listener_js();
+        if ($listener_js !== '') {
+            wp_add_inline_script(self::SCRIPT_HANDLE, $listener_js, 'after');
+        }
     }
 
     /**
@@ -323,6 +329,10 @@ final class TagManager extends AbstractIntegration
             'items'          => $items,
         ]);
 
+        if ($js === '') {
+            return '';
+        }
+
         $order->update_meta_data(self::PURCHASE_FLAG_META, '1');
         $order->save();
 
@@ -411,7 +421,11 @@ final class TagManager extends AbstractIntegration
      */
     private function build_ajax_listener_js(): string
     {
-        $rest_url = rest_url('netpeak-aio/v1/gtm/product');
+        if (!EventFilter::is_enabled($this->key(), 'add_to_cart')) {
+            return '';
+        }
+
+        $rest_url = add_query_arg('channel', $this->key(), rest_url('netpeak-aio/v1/gtm/product'));
         $nonce    = wp_create_nonce('wp_rest');
 
         return sprintf(
@@ -422,7 +436,7 @@ final class TagManager extends AbstractIntegration
             . "var productId=parseInt(button.attr('data-product_id')||'0',10);"
             . "var quantity=parseInt(button.attr('data-quantity')||'1',10);"
             . 'if(!productId)return;'
-            . "fetch(%s+'?id='+productId,{headers:{'X-WP-Nonce':%s}})"
+            . "fetch(%s+'&id='+productId,{headers:{'X-WP-Nonce':%s}})"
             . '.then(function(r){return r.json();})'
             . '.then(function(item){'
             . 'if(!item||!item.item_id)return;'
@@ -499,6 +513,11 @@ final class TagManager extends AbstractIntegration
      */
     private function push_event_js(string $event, array $ecommerce): string
     {
+        $ecommerce = EventFilter::apply($this->key(), $event, $ecommerce);
+        if ($ecommerce === null) {
+            return '';
+        }
+
         return sprintf(
             'window.dataLayer=window.dataLayer||[];'
             . 'window.dataLayer.push({ecommerce:null});'

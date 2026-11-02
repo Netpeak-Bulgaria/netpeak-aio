@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
 use Netpeak\Admin\AdminMenu;
 use Netpeak\Api\OAuth\GoogleOAuthClient;
 use Netpeak\Api\OAuth\TokenStorage;
+use Netpeak\Support\Cache;
 use Throwable;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -102,6 +103,7 @@ final class OAuthController extends AbstractController
             /** @var TokenStorage $storage */
             $storage = $this->container->get(TokenStorage::class);
             $storage->save($tokens);
+            Cache::flush();
 
             wp_safe_redirect(admin_url('admin.php?page=' . AdminMenu::CONNECT_SLUG . '&connected=1'));
             exit;
@@ -122,6 +124,7 @@ final class OAuthController extends AbstractController
         /** @var TokenStorage $storage */
         $storage = $this->container->get(TokenStorage::class);
         $storage->clear();
+        Cache::flush();
 
         return new WP_REST_Response(['disconnected' => true], 200);
     }

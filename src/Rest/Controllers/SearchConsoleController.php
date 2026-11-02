@@ -10,6 +10,7 @@ if (!defined('ABSPATH')) {
 use Netpeak\Api\SearchConsole\QueryBuilder;
 use Netpeak\Api\SearchConsole\SearchConsoleClient;
 use Netpeak\Settings\SettingsRepository;
+use Netpeak\Support\Cache;
 use Throwable;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -39,6 +40,10 @@ final class SearchConsoleController extends AbstractController
             'callback'            => [$this, 'summary'],
             'permission_callback' => [$this, 'check_admin_permissions'],
             'args'                => [
+                'refresh' => [
+                    'type'    => 'boolean',
+                    'default' => false,
+                ],
                 'days' => [
                     'type'              => 'integer',
                     'default'           => self::DEFAULT_DAYS,
@@ -52,6 +57,10 @@ final class SearchConsoleController extends AbstractController
             'callback'            => [$this, 'top'],
             'permission_callback' => [$this, 'check_admin_permissions'],
             'args'                => [
+                'refresh' => [
+                    'type'    => 'boolean',
+                    'default' => false,
+                ],
                 'dimension' => [
                     'type'              => 'string',
                     'default'           => 'query',
@@ -74,6 +83,12 @@ final class SearchConsoleController extends AbstractController
             'methods'             => 'GET',
             'callback'            => [$this, 'sites'],
             'permission_callback' => [$this, 'check_admin_permissions'],
+            'args'                => [
+                'refresh' => [
+                    'type'    => 'boolean',
+                    'default' => false,
+                ],
+            ],
         ]);
     }
 
@@ -85,33 +100,43 @@ final class SearchConsoleController extends AbstractController
     public function summary(WP_REST_Request $request): WP_REST_Response
     {
         try {
-            $days   = $this->days($request);
-            $client = $this->client();
-            $site   = $this->site_url();
+            $days = $this->days($request);
+            $site = $this->site_url();
 
-            $current = $client->search_analytics(
-                $site,
-                QueryBuilder::make()
-                    ->last_days($days)
-                    ->dimensions('date')
-                    ->limit(1000)
-                    ->build()
+            $data = Cache::remember(
+                'gsc:summary:' . $site . ':' . $days,
+                function () use ($days, $site): array {
+                    $client = $this->client();
+
+                    $current = $client->search_analytics(
+                        $site,
+                        QueryBuilder::make()
+                            ->last_days($days)
+                            ->dimensions('date')
+                            ->limit(1000)
+                            ->build()
+                    );
+
+                    $previous = $client->search_analytics(
+                        $site,
+                        QueryBuilder::make()
+                            ->previous_days($days)
+                            ->dimensions('date')
+                            ->limit(1000)
+                            ->build()
+                    );
+
+                    return [
+                        'current'  => $current,
+                        'previous' => $this->aggregate_totals($previous),
+                        'days'     => $days,
+                    ];
+                },
+                Cache::DEFAULT_TTL,
+                $this->wants_refresh($request)
             );
 
-            $previous = $client->search_analytics(
-                $site,
-                QueryBuilder::make()
-                    ->previous_days($days)
-                    ->dimensions('date')
-                    ->limit(1000)
-                    ->build()
-            );
-
-            return new WP_REST_Response([
-                'current'  => $current,
-                'previous' => $this->aggregate_totals($previous),
-                'days'     => $days,
-            ], 200);
+            return new WP_REST_Response($data, 200);
         } catch (Throwable $e) {
             return $this->error_response($e);
         }
@@ -136,17 +161,28 @@ final class SearchConsoleController extends AbstractController
         try {
             $limit = (int) $request->get_param('limit');
             $days  = $this->days($request);
+            $site  = $this->site_url();
 
-            $query = QueryBuilder::make()
-                ->last_days($days)
-                ->dimensions($dimension)
-                ->limit($limit)
-                ->build();
+            $data = Cache::remember(
+                'gsc:top:' . $site . ':' . $dimension . ':' . $limit . ':' . $days,
+                function () use ($site, $dimension, $limit, $days): array {
+                    $data = $this->client()->search_analytics(
+                        $site,
+                        QueryBuilder::make()
+                            ->last_days($days)
+                            ->dimensions($dimension)
+                            ->limit($limit)
+                            ->build()
+                    );
 
-            $data = $this->client()->search_analytics($this->site_url(), $query);
+                    // Tag response with dimension so frontend can render the right column header.
+                    $data['dimension'] = $dimension;
 
-            // Tag response with dimension so frontend can render the right column header.
-            $data['dimension'] = $dimension;
+                    return $data;
+                },
+                Cache::DEFAULT_TTL,
+                $this->wants_refresh($request)
+            );
 
             return new WP_REST_Response($data, 200);
         } catch (Throwable $e) {
@@ -162,7 +198,14 @@ final class SearchConsoleController extends AbstractController
     public function sites(WP_REST_Request $request): WP_REST_Response
     {
         try {
-            return new WP_REST_Response($this->client()->list_sites(), 200);
+            $sites = Cache::remember(
+                'gsc:sites',
+                fn (): array => $this->client()->list_sites(),
+                Cache::DEFAULT_TTL,
+                $this->wants_refresh($request)
+            );
+
+            return new WP_REST_Response($sites, 200);
         } catch (Throwable $e) {
             return $this->error_response($e);
         }

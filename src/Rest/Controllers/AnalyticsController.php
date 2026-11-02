@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
 use Netpeak\Api\Analytics\GoogleAnalyticsClient;
 use Netpeak\Api\Analytics\QueryBuilder;
 use Netpeak\Settings\SettingsRepository;
+use Netpeak\Support\Cache;
 use Throwable;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -34,6 +35,10 @@ final class AnalyticsController extends AbstractController
             'callback'            => [$this, 'summary'],
             'permission_callback' => [$this, 'check_admin_permissions'],
             'args'                => [
+                'refresh' => [
+                    'type'    => 'boolean',
+                    'default' => false,
+                ],
                 'days' => [
                     'type'              => 'integer',
                     'default'           => self::DEFAULT_DAYS,
@@ -47,6 +52,10 @@ final class AnalyticsController extends AbstractController
             'callback'            => [$this, 'timeseries'],
             'permission_callback' => [$this, 'check_admin_permissions'],
             'args'                => [
+                'refresh' => [
+                    'type'    => 'boolean',
+                    'default' => false,
+                ],
                 'days' => [
                     'type'              => 'integer',
                     'default'           => self::DEFAULT_DAYS,
@@ -60,6 +69,10 @@ final class AnalyticsController extends AbstractController
             'callback'            => [$this, 'top_pages'],
             'permission_callback' => [$this, 'check_admin_permissions'],
             'args'                => [
+                'refresh' => [
+                    'type'    => 'boolean',
+                    'default' => false,
+                ],
                 'limit' => [
                     'type'              => 'integer',
                     'default'           => 10,
@@ -79,31 +92,42 @@ final class AnalyticsController extends AbstractController
     public function summary(WP_REST_Request $request): WP_REST_Response
     {
         try {
-            $days    = $this->days($request);
-            $client  = $this->client();
-            $metrics = ['sessions', 'activeUsers', 'screenPageViews', 'engagementRate'];
+            $days     = $this->days($request);
+            $property = $this->property_id();
 
-            $current = $client->run_report(
-                $this->property_id(),
-                QueryBuilder::make()
-                    ->metrics(...$metrics)
-                    ->last_days($days)
-                    ->build()
+            $data = Cache::remember(
+                'ga4:summary:' . $property . ':' . $days,
+                function () use ($days, $property): array {
+                    $client  = $this->client();
+                    $metrics = ['sessions', 'activeUsers', 'screenPageViews', 'engagementRate'];
+
+                    $current = $client->run_report(
+                        $property,
+                        QueryBuilder::make()
+                            ->metrics(...$metrics)
+                            ->last_days($days)
+                            ->build()
+                    );
+
+                    $previous = $client->run_report(
+                        $property,
+                        QueryBuilder::make()
+                            ->metrics(...$metrics)
+                            ->previous_days($days)
+                            ->build()
+                    );
+
+                    return [
+                        'current'  => $this->extract_row($current),
+                        'previous' => $this->extract_row($previous),
+                        'days'     => $days,
+                    ];
+                },
+                Cache::DEFAULT_TTL,
+                $this->wants_refresh($request)
             );
 
-            $previous = $client->run_report(
-                $this->property_id(),
-                QueryBuilder::make()
-                    ->metrics(...$metrics)
-                    ->previous_days($days)
-                    ->build()
-            );
-
-            return new WP_REST_Response([
-                'current'  => $this->extract_row($current),
-                'previous' => $this->extract_row($previous),
-                'days'     => $days,
-            ], 200);
+            return new WP_REST_Response($data, 200);
         } catch (Throwable $e) {
             return new WP_REST_Response([
                 'error' => esc_html__('Failed to load GA4 summary. Please reconnect your Google account or try again later.', 'netpeak-analytics-kit'),
@@ -121,17 +145,23 @@ final class AnalyticsController extends AbstractController
     public function timeseries(WP_REST_Request $request): WP_REST_Response
     {
         try {
-            $days = $this->days($request);
+            $days     = $this->days($request);
+            $property = $this->property_id();
 
-            $data = $this->client()->run_report(
-                $this->property_id(),
-                QueryBuilder::make()
-                    ->metrics('sessions', 'activeUsers', 'screenPageViews')
-                    ->dimensions('date')
-                    ->last_days($days)
-                    ->order_by_metric('sessions', false)
-                    ->limit(1000)
-                    ->build()
+            $data = Cache::remember(
+                'ga4:timeseries:' . $property . ':' . $days,
+                fn (): array => $this->client()->run_report(
+                    $property,
+                    QueryBuilder::make()
+                        ->metrics('sessions', 'activeUsers', 'screenPageViews')
+                        ->dimensions('date')
+                        ->last_days($days)
+                        ->order_by_metric('sessions', false)
+                        ->limit(1000)
+                        ->build()
+                ),
+                Cache::DEFAULT_TTL,
+                $this->wants_refresh($request)
             );
 
             return new WP_REST_Response($data, 200);
@@ -150,17 +180,23 @@ final class AnalyticsController extends AbstractController
     public function top_pages(WP_REST_Request $request): WP_REST_Response
     {
         try {
-            $limit = (int) $request->get_param('limit');
+            $limit    = (int) $request->get_param('limit');
+            $property = $this->property_id();
 
-            $data = $this->client()->run_report(
-                $this->property_id(),
-                QueryBuilder::make()
-                    ->metrics('sessions', 'activeUsers', 'screenPageViews')
-                    ->dimensions('pagePath')
-                    ->last_days(self::DEFAULT_DAYS)
-                    ->order_by_metric('sessions')
-                    ->limit($limit)
-                    ->build()
+            $data = Cache::remember(
+                'ga4:top-pages:' . $property . ':' . $limit,
+                fn (): array => $this->client()->run_report(
+                    $property,
+                    QueryBuilder::make()
+                        ->metrics('sessions', 'activeUsers', 'screenPageViews')
+                        ->dimensions('pagePath')
+                        ->last_days(self::DEFAULT_DAYS)
+                        ->order_by_metric('sessions')
+                        ->limit($limit)
+                        ->build()
+                ),
+                Cache::DEFAULT_TTL,
+                $this->wants_refresh($request)
             );
 
             return new WP_REST_Response($data, 200);

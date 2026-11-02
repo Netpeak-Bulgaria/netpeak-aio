@@ -18,14 +18,18 @@ document.addEventListener('alpine:init', () => {
             await this.reload();
         },
 
-        async reload() {
+        async reload(refresh = false) {
             await Promise.all([
-                this.gsc.loadSummary(this.days),
-                this.gsc.loadTop(this.gsc.topDimension, 25, this.days),
-                this.ga4.loadSummary(this.days),
-                this.ga4.loadTimeseries(this.days),
+                this.gsc.loadSummary(this.days, refresh),
+                this.gsc.loadTop(this.gsc.topDimension, 25, this.days, refresh),
+                this.ga4.loadSummary(this.days, refresh),
+                this.ga4.loadTimeseries(this.days, refresh),
             ]);
             this.scheduleChart();
+        },
+
+        async refresh() {
+            await this.reload(true);
         },
 
         scheduleChart() {

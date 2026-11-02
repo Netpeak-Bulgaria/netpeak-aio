@@ -50,4 +50,16 @@ abstract class AbstractController
     {
         return current_user_can('manage_options');
     }
+
+    /**
+     * True when the UI asked to bypass the response cache (?refresh=1).
+     *
+     * @param WP_REST_Request $request
+     *
+     * @return bool
+     */
+    protected function wants_refresh(WP_REST_Request $request): bool
+    {
+        return rest_sanitize_boolean($request->get_param('refresh'));
+    }
 }

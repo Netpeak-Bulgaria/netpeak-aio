@@ -10,6 +10,7 @@ if (!defined('ABSPATH')) {
 
 use Netpeak\Settings\SettingsRepository;
 use Netpeak\Settings\SettingsSchema;
+use Netpeak\Support\Cache;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -80,6 +81,7 @@ final class SettingsController extends AbstractController
 
         $clean = SettingsSchema::sanitize($input);
         $repo->save($clean);
+        Cache::flush();
 
         return new WP_REST_Response([
             'saved'    => true,

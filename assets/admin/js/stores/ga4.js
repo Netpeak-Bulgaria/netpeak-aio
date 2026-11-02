@@ -7,12 +7,12 @@ document.addEventListener('alpine:init', () => {
         error: null,
         days: 28,
 
-        async loadSummary(days = 28) {
+        async loadSummary(days = 28, refresh = false) {
             this.loading = true;
             this.error = null;
             this.days = days;
             try {
-                const response = await window.NetpeakAIO.request(`ga4/summary?days=${days}`);
+                const response = await window.NetpeakAIO.request(`ga4/summary?days=${days}${refresh ? '&refresh=1' : ''}`);
                 this.current = response.current || null;
                 this.previous = response.previous || null;
             } catch (e) {
@@ -22,9 +22,9 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        async loadTimeseries(days = 28) {
+        async loadTimeseries(days = 28, refresh = false) {
             try {
-                this.timeseries = await window.NetpeakAIO.request(`ga4/timeseries?days=${days}`);
+                this.timeseries = await window.NetpeakAIO.request(`ga4/timeseries?days=${days}${refresh ? '&refresh=1' : ''}`);
             } catch (e) {
                 this.error = e.message;
             }

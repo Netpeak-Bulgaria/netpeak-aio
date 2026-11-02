@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use Netpeak\Support\EventFilter;
 use WC_Product;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -22,6 +23,11 @@ use WP_REST_Response;
 final class GtmProductController extends AbstractController
 {
     /**
+     * Channels that may ask for a product payload. They are the channel names of the public filters.
+     */
+    private const CHANNELS = ['ga4', 'gtm'];
+
+    /**
      * @return void
      */
     public function register(): void
@@ -35,6 +41,11 @@ final class GtmProductController extends AbstractController
                     'type'              => 'integer',
                     'required'          => true,
                     'sanitize_callback' => 'absint',
+                ],
+                'channel' => [
+                    'type'              => 'string',
+                    'default'           => 'ga4',
+                    'sanitize_callback' => 'sanitize_key',
                 ],
             ],
         ]);
@@ -84,14 +95,21 @@ final class GtmProductController extends AbstractController
             $brand_name = (string) $brand_terms[0]->name;
         }
 
+        $channel = (string) $request->get_param('channel');
+        if (!in_array($channel, self::CHANNELS, true)) {
+            $channel = self::CHANNELS[0];
+        }
+
+        $item_id = $product->get_sku() !== '' ? $product->get_sku() : (string) $product->get_id();
+
         $payload = [
-            'item_id'       => $product->get_sku() !== '' ? $product->get_sku() : (string) $product->get_id(),
+            'item_id'       => EventFilter::item_id($item_id, $product, $channel),
             'item_name'     => $product->get_name(),
             'price'         => (float) $product->get_price(),
             'item_category' => $category_name,
             'item_brand'    => $brand_name,
         ];
 
-        return new WP_REST_Response($payload, 200);
+        return new WP_REST_Response(EventFilter::item($payload, $product, $channel), 200);
     }
 }

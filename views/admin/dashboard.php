@@ -47,6 +47,8 @@ $i18n = [
     'search_console' => esc_html__('Search Console', 'netpeak-analytics-kit'),
     'analytics_4'    => esc_html__('Analytics 4', 'netpeak-analytics-kit'),
     'no_data'        => esc_html__('No data for this period.', 'netpeak-analytics-kit'),
+    'refresh'        => esc_html__('Refresh', 'netpeak-analytics-kit'),
+    'refresh_title'  => esc_attr__('Reload data from Google. Results are cached for 30 minutes otherwise.', 'netpeak-analytics-kit'),
 ];
 
 // Reusable inline SVG spinner. Kept as a variable so we can drop it into
@@ -74,6 +76,11 @@ $spinner_svg = '<svg class="netpeak-analytics-kit__spinner" viewBox="0 0 50 50" 
             </template>
         </div>
         <div class="netpeak-analytics-kit__toolbar-right">
+            <button type="button"
+                    class="netpeak-analytics-kit__range-btn"
+                    title="<?php echo $i18n['refresh_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>"
+                    :disabled="gsc.loading || ga4.loading"
+                    @click="refresh()"><?php echo esc_html($i18n['refresh']); ?></button>
             <span x-show="gsc.loading || ga4.loading" class="netpeak-analytics-kit__loading-pill">
                 <?php echo $spinner_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 <?php echo esc_html($i18n['loading']); ?>

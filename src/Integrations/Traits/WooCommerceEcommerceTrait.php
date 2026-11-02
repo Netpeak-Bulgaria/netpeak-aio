@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Netpeak\Integrations\Traits;
 
+use Netpeak\Support\EventFilter;
 use WC_Cart;
 use WC_Order;
 use WC_Order_Item_Product;
@@ -61,7 +62,10 @@ trait WooCommerceEcommerceTrait
             $item['item_brand'] = $brand;
         }
 
-        return $item;
+        $channel         = $this->key();
+        $item['item_id'] = EventFilter::item_id($item['item_id'], $product, $channel);
+
+        return EventFilter::item($item, $product, $channel);
     }
 
     /**
